@@ -1,35 +1,9 @@
 # A sample Guardfile
 # More info at https://github.com/guard/guard#readme
 
-## Uncomment and set this to only include directories you want to watch
-# directories %w(app lib config test spec features) \
-#  .select{|d| Dir.exists?(d) ? d : UI.warning("Directory #{d} does not exist")}
-
-## Note: if you are using the `directories` clause above and you are not
-## watching the project directory ('.'), then you will want to move
-## the Guardfile to a watched dir and symlink it back, e.g.
-#
-#  $ mkdir config
-#  $ mv Guardfile config/
-#  $ ln -s config/Guardfile .
-#
-# and, you'll have to watch "config/Guardfile" instead of "Guardfile"
-
-
-# Note: The cmd option is now required due to the increasing number of ways
-#       rspec may be run, below are examples of the most common uses.
-#  * bundler: 'bundle exec rspec'
-#  * bundler binstubs: 'bin/rspec'
-#  * spring: 'bin/rspec' (This will use spring if running and you have
-#                          installed the spring binstubs per the docs)
-#  * zeus: 'zeus rspec' (requires the server to be started separately)
-#  * 'just' rspec: 'rspec'
-
 guard :rspec, cmd: "bundle exec rspec" do
   require "guard/rspec/dsl"
   dsl = Guard::RSpec::Dsl.new(self)
-
-  # Feel free to open issues for suggestions and improvements
 
   # RSpec files
   rspec = dsl.rspec
@@ -45,11 +19,11 @@ guard :rspec, cmd: "bundle exec rspec" do
   rails = dsl.rails(view_extensions: %w(erb haml slim))
   dsl.watch_spec_files_for(rails.app_files)
   dsl.watch_spec_files_for(rails.views)
-
   watch(rails.controllers) do |m|
     [
       rspec.spec.("routing/#{m[1]}_routing"),
       rspec.spec.("controllers/#{m[1]}_controller"),
+      rspec.spec.("requests/#{m[1]}"),
       rspec.spec.("acceptance/#{m[1]}")
     ]
   end
@@ -57,7 +31,18 @@ guard :rspec, cmd: "bundle exec rspec" do
   # Rails config changes
   watch(rails.spec_helper)     { rspec.spec_dir }
   watch(rails.routes)          { "#{rspec.spec_dir}/routing" }
-  watch(rails.app_controller)  { "#{rspec.spec_dir}/controllers" }
+  watch(rails.app_controller) do
+    [
+      "#{rspec.spec_dir}/controllers",
+      "#{rspec.spec_dir}/requests",
+    ]
+  end
+  watch("app/controllers/v1/api_controller.rb") do
+    [
+      "#{rspec.spec_dir}/controllers",
+      "#{rspec.spec_dir}/requests",
+    ]
+  end
 
   # Capybara features specs
   watch(rails.view_dirs)     { |m| rspec.spec.("features/#{m[1]}") }
@@ -68,25 +53,18 @@ guard :rspec, cmd: "bundle exec rspec" do
   watch(%r{^spec/acceptance/steps/(.+)_steps\.rb$}) do |m|
     Dir[File.join("**/#{m[1]}.feature")][0] || "spec/acceptance"
   end
+
+  callback(:run_all_begin) { CombustionHelper.stop_combustion }
+  callback(:run_on_modifications_begin) { CombustionHelper.stop_combustion }
+  callback(:run_all_end) { CombustionHelper.start_combustion }
+  callback(:run_on_modifications_end) { CombustionHelper.start_combustion }
 end
 
-# Guard-Rails supports a lot options with default values:
-# daemon: false                        # runs the server as a daemon.
-# debugger: false                      # enable ruby-debug gem.
-# environment: 'development'           # changes server environment.
-# force_run: false                     # kills any process that's holding the listen port before attempting to (re)start Rails.
-# pid_file: 'tmp/pids/[RAILS_ENV].pid' # specify your pid_file.
-# host: 'localhost'                    # server hostname.
-# port: 3000                           # server port number.
-# root: '/spec/dummy'                  # Rails' root path.
-# server: thin                         # webserver engine.
-# start_on_start: true                 # will start the server when starting Guard.
-# timeout: 30                          # waits untill restarting the Rails server, in seconds.
-# zeus_plan: server                    # custom plan in zeus, only works with `zeus: true`.
-# zeus: false                          # enables zeus gem.
-# CLI: 'rails server'                  # customizes runner command. Omits all options except `pid_file`!
-
-guard 'rails', root: 'spec/dummy' do
-  watch('Gemfile.lock')
-  watch(%r{^(config|lib)/.*})
+# Add files to watch, like the example:
+#   watch(%r{file/path})
+#
+# Per modificare la porta di combustion, modificare il file .guard_combustion_port
+#
+guard :combustion do
+  watch(%r{^(app|config|lib|spec)/(.*)})
 end

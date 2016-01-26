@@ -1,8 +1,36 @@
+# === boot ===
+
 begin
-  require 'bundler/setup'
+  require "bundler/setup"
 rescue LoadError
   puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
 end
+
+# === application ===
+
+require "rails"
+require "combustion"
+require "active_record/railtie"
+
+Bundler.require :default, Rails.env
+
+Combustion::Application.configure_for_combustion
+
+# === Rakefile ===
+
+task :environment do
+  Combustion::Application.initialize!
+
+  # Reset migrations paths so we can keep the migrations in the project root,
+  # not the Rails root
+  migrations_paths = ["db/migrate"]
+  ActiveRecord::Tasks::DatabaseTasks.migrations_paths = migrations_paths
+  ActiveRecord::Migrator.migrations_paths = migrations_paths
+end
+
+require "rspec/core/rake_task"
+
+Combustion::Application.load_tasks
 
 require 'rdoc/task'
 
@@ -14,22 +42,4 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-APP_RAKEFILE = File.expand_path("../spec/dummy/Rakefile", __FILE__)
-load 'rails/tasks/engine.rake'
-
-
-load 'rails/tasks/statistics.rake'
-
-
-
 Bundler::GemHelper.install_tasks
-
-Dir[File.join(File.dirname(__FILE__), 'tasks/**/*.rake')].each {|f| load f }
-
-require 'rspec/core'
-require 'rspec/core/rake_task'
-
-desc "Run all specs in spec directory (excluding plugin specs)"
-RSpec::Core::RakeTask.new(:spec => 'app:db:test:prepare')
-
-task :default => :spec
