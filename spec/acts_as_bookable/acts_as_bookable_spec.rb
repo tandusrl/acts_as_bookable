@@ -12,7 +12,15 @@ describe 'Bookable' do
     end
 
     it "should responde 'true' to bookable?" do
-      expect(@bookable.class).to be_taggable
+      expect(@bookable.class).to be_bookable
+    end
+  end
+
+  describe 'Reloading' do
+    it 'should save a model instantiated by Model.find' do
+      bookable = BookableModel.create!(name: 'Bookable')
+      found_bookable = BookableModel.find(bookable.id)
+      expect(found_bookable.save).to eq true
     end
   end
 end
