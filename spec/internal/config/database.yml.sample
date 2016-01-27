@@ -6,7 +6,6 @@ mysql:
   adapter: mysql2
   host: localhost
   username: root
-  password: admin
   database: acts_as_bookable
   charset: utf8
 
@@ -14,6 +13,5 @@ postgresql:
   adapter: postgresql
   hostname: localhost
   username: postgres
-  password: admin
   database: acts_as_bookable
   encoding: utf8
