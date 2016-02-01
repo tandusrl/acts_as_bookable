@@ -30,7 +30,7 @@ describe 'Bookable model' do
 
     it 'dependent: :destroy' do
       count = ActsAsBookable::Booking.count
-      @bookable.destroy!
+      @bookable.destroy
       expect(ActsAsBookable::Booking.count).to eq count -2
     end
   end
