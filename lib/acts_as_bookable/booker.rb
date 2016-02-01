@@ -62,6 +62,9 @@ module ActsAsBookable
       #   taggable.set_owner_tag_list_on(self, opts[:on].to_s, opts[:with])
       #   taggable.save unless skip_save
       # end
+      def book(bookable, opts={})
+        
+      end
 
       def booker?
         self.class.booker?

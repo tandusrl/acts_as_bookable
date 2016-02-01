@@ -15,8 +15,9 @@ describe 'Booker model' do
 
   describe 'has_many :bookings' do
     before(:each) do
-      bookable1 = Bookable.create(name: 'Booker 1')
-      bookable2 = Bookable.create(name: 'Booker 2')
+      @booker.save!
+      bookable1 = Bookable.create(name: 'Bookable 1')
+      bookable2 = Bookable.create(name: 'Bookable 2')
       booking1 = ActsAsBookable::Booking.create(bookable: bookable1, booker: @booker)
       booking2 = ActsAsBookable::Booking.create(bookable: bookable2, booker: @booker)
       @booker.reload
@@ -29,8 +30,24 @@ describe 'Booker model' do
 
     it 'dependent: :destroy' do
       count = ActsAsBookable::Booking.count
-      @booker.destroy!
+      @booker.destroy
       expect(ActsAsBookable::Booking.count).to eq count -2
+    end
+  end
+
+  describe '#book' do
+    before(:each) do
+      @bookable = Bookable.create(name: 'Bookable')
+    end
+
+    it 'should respond to #book' do
+      expect(@booker).to respond_to :book
+    end
+
+    it 'should create a new booking' do
+      count = ActsAsBookable::Booking.count
+      @booker.book(@bookable)
+
     end
   end
 
