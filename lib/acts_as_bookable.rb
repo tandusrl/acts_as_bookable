@@ -8,6 +8,9 @@ module ActsAsBookable
   extend ActiveSupport::Autoload
 
   autoload :Bookable
+  autoload :Booker
+  autoload :Booking
+  autoload :T
   autoload :VERSION
 
   # autoload_under 'bookable' do
@@ -17,4 +20,5 @@ end
 
 ActiveSupport.on_load(:active_record) do
   extend ActsAsBookable::Bookable
+  include ActsAsBookable::Booker
 end

@@ -12,9 +12,6 @@ module ActsAsBookable
     #   class Room < ActiveRecord::Base
     #     acts_as_bookable
     #   end
-    # def acts_as_bookable
-    #
-    # end
     def acts_as_bookable
       bookable
     end
@@ -25,6 +22,8 @@ module ActsAsBookable
     def bookable
       unless bookable?
         class_eval do
+          has_many :bookings, as: :bookable, dependent: :destroy, class_name: '::ActsAsBookable::Booking'
+
           def self.bookable?
             true
           end

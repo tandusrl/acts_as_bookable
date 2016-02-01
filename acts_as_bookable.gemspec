@@ -27,6 +27,7 @@ Gem::Specification.new do |gem|
   end
 
   gem.add_runtime_dependency 'activerecord', ['>= 3.2', '< 5']
+  gem.add_runtime_dependency 'railties'
 
   gem.add_development_dependency 'sqlite3'
   gem.add_development_dependency 'mysql2', '~> 0.3.7'

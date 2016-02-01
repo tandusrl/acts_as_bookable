@@ -6,20 +6,20 @@ ActiveRecord::Schema.define version: 0 do
   # end
   # add_index 'tags', ['name'], name: 'index_tags_on_name', unique: true
   #
-  # create_table :taggings, force: true do |t|
-  #   t.references :tag
-  #
-  #   # You should make sure that the column created is
-  #   # long enough to store the required class names.
-  #   t.references :taggable, polymorphic: true
-  #   t.references :tagger, polymorphic: true
-  #
-  #   # Limit is created to prevent MySQL error on index
-  #   # length for MyISAM table type: http://bit.ly/vgW2Ql
-  #   t.string :context, limit: 128
-  #
-  #   t.datetime :created_at
-  # end
+  create_table :bookings, force: true do |t|
+    # t.references :tag
+
+    # You should make sure that the column created is
+    # long enough to store the required class names.
+    t.references :bookable, polymorphic: true
+    t.references :booker, polymorphic: true
+
+    # Limit is created to prevent MySQL error on index
+    # length for MyISAM table type: http://bit.ly/vgW2Ql
+    # t.string :context, limit: 128
+
+    t.datetime :created_at
+  end
   # add_index 'taggings',
   #           ['tag_id', 'taggable_id', 'taggable_type', 'context', 'tagger_id', 'tagger_type'],
   #           unique: true, name: 'taggings_idx'
@@ -27,7 +27,7 @@ ActiveRecord::Schema.define version: 0 do
   # # above copied from
   # # generators/acts_as_taggable_on/migration/migration_generator
   #
-  create_table :bookable_models, force: true do |t|
+  create_table :bookables, force: true do |t|
     t.column :name, :string
   end
   #
@@ -36,8 +36,15 @@ ActiveRecord::Schema.define version: 0 do
   #   t.column :type, :string
   # end
   #
-  create_table :unbookable_models, force: true do |t|
-    # t.column :taggable_model_id, :integer
+  create_table :unbookables, force: true do |t|
+    t.column :name, :string
+  end
+
+  create_table :not_bookers, force: true do |t|
+    t.column :name, :string
+  end
+
+  create_table :generics, force: true do |t|
     t.column :name, :string
   end
   #
@@ -59,9 +66,9 @@ ActiveRecord::Schema.define version: 0 do
   #   t.column :name, :string
   # end
   #
-  # create_table :users, force: true do |t|
-  #   t.column :name, :string
-  # end
+  create_table :bookers, force: true do |t|
+    t.column :name, :string
+  end
   #
   # create_table :other_taggable_models, force: true do |t|
   #   t.column :name, :string

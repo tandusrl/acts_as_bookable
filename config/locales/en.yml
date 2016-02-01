@@ -1,0 +1,7 @@
+en:
+  acts_as_bookable:
+    errors:
+      messages:
+        booking:
+          bookable_must_be_bookable: "cannot book a %{model} as it\'s not bookable"
+          booker_must_be_booker: "a %{model} cannot book a resource, because %{model} is not a booker"

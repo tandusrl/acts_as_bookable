@@ -1,5 +1,5 @@
 begin
-  require 'byebug'
+  require 'pry-rails'
 rescue LoadError
 end
 $LOAD_PATH << '.' unless $LOAD_PATH.include?('.')
@@ -13,6 +13,8 @@ require 'barrier'
 require 'database_cleaner'
 
 Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
+
+I18n.load_path << File.expand_path("../../config/locales/en.yml", __FILE__)
 
 RSpec.configure do |config|
   config.raise_errors_for_deprecations!

@@ -11,11 +11,11 @@ gemspec
 # your gem to rubygems.org.
 
 # To use a debugger
-# gem 'byebug', group: [:development, :test]
 group :local_development do
   gem 'guard'
   gem 'guard-rspec'
   gem 'appraisal'
   gem 'rake'
   gem 'byebug' , platform: :mri_21
+  gem 'pry-rails'
 end
