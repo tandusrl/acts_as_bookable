@@ -15,6 +15,7 @@ describe 'Bookable model' do
 
   describe 'has_many :bookings' do
     before(:each) do
+      @bookable.save!
       booker1 = Booker.create(name: 'Booker 1')
       booker2 = Booker.create(name: 'Booker 2')
       booking1 = ActsAsBookable::Booking.create(booker: booker1, bookable: @bookable)
