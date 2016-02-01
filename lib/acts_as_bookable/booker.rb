@@ -16,18 +16,6 @@ module ActsAsBookable
       def acts_as_booker(opts={})
         class_eval do
           has_many :bookings, as: :booker, dependent: :destroy, class_name: '::ActsAsBookable::Booking'
-          # has_many_with_taggable_compatibility :owned_taggings,
-          #                                      opts.merge(
-          #                                          as: :booker,
-          #                                          dependent: :destroy,
-          #                                          class_name: '::ActsAsBookable::Tagging'
-          #                                      )
-          #
-          # has_many_with_taggable_compatibility :owned_bookings,
-          #                                      through: :owned_taggings,
-          #                                      source: :tag,
-          #                                      class_name: '::ActsAsBookable::Tag',
-          #                                      uniq: true
         end
 
         include ActsAsBookable::Booker::InstanceMethods
@@ -40,30 +28,35 @@ module ActsAsBookable
     end
 
     module InstanceMethods
-      # ##
-      # # Tag a taggable model with bookings that are owned by the booker.
-      # #
-      # # @param taggable The object that will be tagged
-      # # @param [Hash] options An hash with options. Available options are:
-      # #               * <tt>:with</tt> - The bookings that you want to
-      # #               * <tt>:on</tt>   - The context on which you want to tag
-      # #
-      # # Example:
-      # #   @user.tag(@photo, :with => "paris, normandy", :on => :locations)
-      # def tag(taggable, opts={})
-      #   opts.reverse_merge!(force: true)
-      #   skip_save = opts.delete(:skip_save)
-      #   return false unless taggable.respond_to?(:is_taggable?) && taggable.is_taggable?
+      ##
+      # Book a bookable model
       #
-      #   fail 'You need to specify a tag context using :on' unless opts.key?(:on)
-      #   fail 'You need to specify some bookings using :with' unless opts.key?(:with)
-      #   fail "No context :#{opts[:on]} defined in #{taggable.class}" unless opts[:force] || taggable.tag_types.include?(opts[:on])
+      # @param bookable The resource that will be booked
+      # @return The booking created
+      # @raise ActiveRecord::RecordInvalid if trying to create an invalid booking
       #
-      #   taggable.set_owner_tag_list_on(self, opts[:on].to_s, opts[:with])
-      #   taggable.save unless skip_save
-      # end
-      def book(bookable, opts={})
-        
+      # Example:
+      #   @user.book!(@room)
+      def book!(bookable)
+        booking = ActsAsBookable::Booking.create!(booker: self, bookable: bookable)
+        bookable.reload
+        booking
+      end
+
+      ##
+      # Book a bookable Model
+      #
+      # @param bookable The resource that will be booked
+      # @return The booking created, or false in case of errors
+      #
+      # Example:
+      #   @user.book(@room)
+      def book(bookable)
+        begin
+          book!(bookable)
+        rescue ActiveRecord::RecordInvalid => er
+          false
+        end
       end
 
       def booker?

@@ -45,9 +45,50 @@ describe 'Booker model' do
     end
 
     it 'should create a new booking' do
-      count = ActsAsBookable::Booking.count
-      @booker.book(@bookable)
+      count = @booker.bookings.count
+      new_booking = @booker.book(@bookable)
+      expect(@booker.bookings.count).to eq count+1
+      expect(new_booking.class.to_s).to eq "ActsAsBookable::Booking"
+    end
 
+    it 'should not create a new booking if it\'s not valid' do
+      count = @booker.bookings.count
+      @booker.book(Generic.new)
+      expect(@booker.bookings.count).to eq count
+    end
+
+    it 'should return false if the booking is not valid' do
+      expect(@booker.book(Generic.new)).to eq false
+    end
+  end
+
+  describe '#book!' do
+    before(:each) do
+      @bookable = Bookable.create(name: 'Bookable')
+    end
+
+    it 'should respond to #book!' do
+      expect(@booker).to respond_to :book!
+    end
+
+    it 'should create a new booking' do
+      count = @booker.bookings.count
+      new_booking = @booker.book!(@bookable)
+      expect(@booker.bookings.count).to eq count+1
+      expect(new_booking.class.to_s).to eq "ActsAsBookable::Booking"
+    end
+
+    it 'should raise ActiveRecord::RecordInvalid if new booking is not valid' do
+      expect{ @booker.book!(Generic.new) }.to raise_error ActiveRecord::RecordInvalid
+    end
+
+    it 'should not create a new booking if it\'s not valid' do
+      count = @booker.bookings.count
+      begin
+        @booker.book!(Generic.new)
+      rescue ActiveRecord::RecordInvalid => er
+      end
+      expect(@booker.bookings.count).to eq count
     end
   end
 
