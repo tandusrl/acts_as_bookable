@@ -14,6 +14,8 @@ ActiveRecord::Schema.define version: 0 do
     t.references :bookable, polymorphic: true
     t.references :booker, polymorphic: true
 
+    t.column :amount, :integer
+    t.column :schedule, :text
     # Limit is created to prevent MySQL error on index
     # length for MyISAM table type: http://bit.ly/vgW2Ql
     # t.string :context, limit: 128
@@ -29,6 +31,8 @@ ActiveRecord::Schema.define version: 0 do
   #
   create_table :bookables, force: true do |t|
     t.column :name, :string
+    t.column :schedule, :text
+    t.column :capacity, :integer
   end
   #
   # create_table :non_standard_id_taggable_models, primary_key: 'an_id', force: true do |t|

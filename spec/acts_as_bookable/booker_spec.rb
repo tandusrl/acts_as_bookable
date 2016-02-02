@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'Booker model' do
   before(:each) do
-    @booker = Booker.new
+    @booker = build(:booker)
   end
 
   it 'should be valid with all required fields set' do
@@ -16,10 +16,10 @@ describe 'Booker model' do
   describe 'has_many :bookings' do
     before(:each) do
       @booker.save!
-      bookable1 = Bookable.create(name: 'Bookable 1')
-      bookable2 = Bookable.create(name: 'Bookable 2')
-      booking1 = ActsAsBookable::Booking.create(bookable: bookable1, booker: @booker)
-      booking2 = ActsAsBookable::Booking.create(bookable: bookable2, booker: @booker)
+      bookable1 = create(:bookable)
+      bookable2 = create(:bookable)
+      booking1 = ActsAsBookable::Booking.create(bookable: bookable1, booker: @booker, schedule: 'ever', amount: 2)
+      booking2 = ActsAsBookable::Booking.create(bookable: bookable2, booker: @booker, schedule: 'ever', amount: 2)
       @booker.reload
     end
 
@@ -37,7 +37,7 @@ describe 'Booker model' do
 
   describe '#book' do
     before(:each) do
-      @bookable = Bookable.create(name: 'Bookable')
+      @bookable = create(:bookable)
     end
 
     it 'should respond to #book' do
@@ -64,7 +64,7 @@ describe 'Booker model' do
 
   describe '#book!' do
     before(:each) do
-      @bookable = Bookable.create(name: 'Bookable')
+      @bookable = create(:bookable)
     end
 
     it 'should respond to #book!' do

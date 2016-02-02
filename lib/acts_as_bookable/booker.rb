@@ -34,11 +34,18 @@ module ActsAsBookable
       # @param bookable The resource that will be booked
       # @return The booking created
       # @raise ActiveRecord::RecordInvalid if trying to create an invalid booking
+      # @raise ActsAsBookable::BookingError if opts are not valid for given bookable
       #
       # Example:
       #   @user.book!(@room)
-      def book!(bookable)
+      def book!(bookable, opts={})
+        # validates options
+        bookable.class.validate_booking_options!(opts) if bookable.class.bookable?
+
+        # create the new booking
         booking = ActsAsBookable::Booking.create!(booker: self, bookable: bookable)
+
+        # reload the bookable to make changes available
         bookable.reload
         booking
       end

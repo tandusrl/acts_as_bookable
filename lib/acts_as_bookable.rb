@@ -13,9 +13,21 @@ module ActsAsBookable
   autoload :T
   autoload :VERSION
 
-  # autoload_under 'bookable' do
-  #
-  # end
+  autoload_under 'bookable' do
+    autoload :Core
+  end
+
+  class InitializationError < StandardError
+    def initialize model, message
+      super "Error initializing acts_as_bookable on #{model.to_s} - " + message
+    end
+  end
+
+  class InvalidOptions < StandardError
+    def initialize model, message
+      super "Error validating options for #{model.to_s} - " + message
+    end
+  end
 end
 
 ActiveSupport.on_load(:active_record) do

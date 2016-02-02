@@ -27,13 +27,14 @@ Gem::Specification.new do |gem|
   end
 
   gem.add_runtime_dependency 'activerecord', ['>= 3.2', '< 5']
-  gem.add_runtime_dependency 'railties'
+  gem.add_runtime_dependency 'ice_cube'
 
   gem.add_development_dependency 'sqlite3'
   gem.add_development_dependency 'mysql2', '~> 0.3.7'
   gem.add_development_dependency 'pg'
   gem.add_development_dependency 'rspec-rails'
   gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'factory_girl_rails'
   gem.add_development_dependency 'barrier'
   gem.add_development_dependency 'database_cleaner'
 end

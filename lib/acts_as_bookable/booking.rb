@@ -11,7 +11,9 @@ module ActsAsBookable
 
     validates_presence_of :bookable
     validates_presence_of :booker
+    validates_presence_of :schedule
     validate :bookable_must_be_bookable, :booker_must_be_booker
+    validates :amount, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
     private
       ##

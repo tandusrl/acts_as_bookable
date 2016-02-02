@@ -11,6 +11,10 @@ I18n.enforce_available_locales = true
 require 'rails'
 require 'barrier'
 require 'database_cleaner'
+require 'factory_girl_rails'
+
+ENGINE_RAILS_ROOT=File.join(File.dirname(__FILE__), '../')
+Dir[File.join(ENGINE_RAILS_ROOT, "spec/factories/**/*.rb")].each {|f| require f }
 
 Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
