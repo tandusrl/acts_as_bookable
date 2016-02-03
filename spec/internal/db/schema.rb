@@ -34,6 +34,31 @@ ActiveRecord::Schema.define version: 0 do
     t.column :schedule, :text
     t.column :capacity, :integer
   end
+
+  create_table :rooms, force: true do |t|
+    t.column :name, :string
+    t.column :schedule, :text
+    t.column :capacity, :integer
+  end
+
+  create_table :events, force: true do |t|
+    t.column :name, :string
+    t.column :schedule, :text
+    t.column :capacity, :integer
+  end
+
+  create_table :shows, force: true do |t|
+    t.column :name, :string
+    t.column :schedule, :text
+    t.column :capacity, :integer
+  end
+
+  create_table :taxis, force: true do |t|
+    t.column :name, :string
+    t.column :schedule, :text
+    t.column :capacity, :integer
+  end
+
   #
   # create_table :non_standard_id_taggable_models, primary_key: 'an_id', force: true do |t|
   #   t.column :name, :string

@@ -2,6 +2,11 @@ require 'spec_helper'
 
 describe 'Bookable model' do
   describe '#initialize_acts_as_bookable_core' do
+    after(:each) do
+      Bookable.booking_opts = {}
+      Bookable.initialize_acts_as_bookable_core
+    end
+
     describe '#set_options' do
       it 'defaults preset to room' do
         Bookable.booking_opts = {}
@@ -94,9 +99,7 @@ describe 'Bookable model' do
         capacity_type: :none,
         date_type: :none
       }
-      @opts = {
-        amount: 1
-      }
+      @opts = {}
     end
 
     describe 'with date_type: :none, location_type: :none and date_type: :none' do
@@ -120,21 +123,21 @@ describe 'Bookable model' do
 
         it 'requires from_date as Date' do
           @opts[:from_date] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:from_date] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'requires to_date as Date' do
           @opts[:to_date] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:to_date] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept a fixed date' do
           @opts[:date] = Date.today
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
 
@@ -151,19 +154,19 @@ describe 'Bookable model' do
 
         it 'requires date as Date' do
           @opts[:date] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:date] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept from_date' do
           @opts[:from_date] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_date' do
           @opts[:to_date] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
 
@@ -174,17 +177,17 @@ describe 'Bookable model' do
 
         it 'doesn\'t accept date' do
           @opts[:date] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept from_date' do
           @opts[:from_date] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_date' do
           @opts[:to_date] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
     end
@@ -204,21 +207,21 @@ describe 'Bookable model' do
 
         it 'requires from_time as Time' do
           @opts[:from_time] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:from_time] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'requires to_time as Time' do
           @opts[:to_time] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:to_time] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept a fixed time' do
           @opts[:time] = Time.now
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
 
@@ -235,19 +238,19 @@ describe 'Bookable model' do
 
         it 'requires date as Time' do
           @opts[:time] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:time] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept from_time' do
           @opts[:from_time] = Time.now + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_time' do
           @opts[:to_time] = Time.now + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
 
@@ -258,17 +261,17 @@ describe 'Bookable model' do
 
         it 'doesn\'t accept time' do
           @opts[:time] = Time.now + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept from_time' do
           @opts[:from_time] = Time.now + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_time' do
           @opts[:to_time] = Time.now + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
     end
@@ -288,17 +291,17 @@ describe 'Bookable model' do
 
         it 'requires from_location as String' do
           @opts[:from_location] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'requires to_location as String' do
           @opts[:to_location] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept a fixed location' do
           @opts[:time] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
 
@@ -315,17 +318,17 @@ describe 'Bookable model' do
 
         it 'requires location as String' do
           @opts[:location] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept from_location' do
           @opts[:from_location] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_location' do
           @opts[:to_location] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
 
@@ -336,17 +339,64 @@ describe 'Bookable model' do
 
         it 'doesn\'t accept date' do
           @opts[:location] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept from_location' do
           @opts[:from_location] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_location' do
           @opts[:to_location] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::InvalidOptions
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
+        end
+      end
+    end
+
+    describe 'with capacity_type = ' do
+      describe ':open' do
+        before(:each) do
+          Bookable.booking_opts[:capacity_type] = :open
+          Bookable.initialize_acts_as_bookable_core
+          @opts[:amount] = 2
+        end
+
+        it 'validates with all options fields set' do
+          expect(Bookable.validate_booking_options!(@opts)).to be_truthy
+        end
+
+        it 'requires :amount as integer' do
+          @opts[:amount] = nil
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
+        end
+      end
+
+      describe ':closed' do
+        before(:each) do
+          Bookable.booking_opts[:capacity_type] = :closed
+          Bookable.initialize_acts_as_bookable_core
+          @opts[:amount] = 2
+        end
+
+        it 'validates with all options fields set' do
+          expect(Bookable.validate_booking_options!(@opts)).to be_truthy
+        end
+
+        it 'requires :amount as integer' do
+          @opts[:amount] = nil
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
+        end
+      end
+
+      describe ':none' do
+        before(:each) do
+          Bookable.initialize_acts_as_bookable_core
+        end
+
+        it 'doesn\'t accept amount' do
+          @opts[:amount] = 2.3
+          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
     end

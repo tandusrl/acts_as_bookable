@@ -23,7 +23,7 @@ module ActsAsBookable
     end
   end
 
-  class InvalidOptions < StandardError
+  class OptionsInvalid < StandardError
     def initialize model, message
       super "Error validating options for #{model.to_s} - " + message
     end

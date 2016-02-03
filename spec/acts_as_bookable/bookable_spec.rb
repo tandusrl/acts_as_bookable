@@ -36,8 +36,8 @@ describe 'Bookable model' do
       @bookable.save!
       booker1 = create(:booker, name: 'Booker 1')
       booker2 = create(:booker, name: 'Booker 2')
-      booking1 = ActsAsBookable::Booking.create!(booker: booker1, bookable: @bookable, schedule: 'ever', amount: 2)
-      booking2 = ActsAsBookable::Booking.create!(booker: booker1, bookable: @bookable, schedule: 'ever', amount: 2)
+      booking1 = ActsAsBookable::Booking.create!(booker: booker1, bookable: @bookable)
+      booking2 = ActsAsBookable::Booking.create!(booker: booker1, bookable: @bookable)
       @bookable.reload
     end
 

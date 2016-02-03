@@ -20,13 +20,12 @@ module ActsAsBookable
 
     # Make a model bookable
     def bookable(options)
-      booking_opts = options
 
       if bookable?
-        self.booking_opts.merge!(booking_opts)
+        self.booking_opts = options
       else
         class_attribute :booking_opts
-        self.booking_opts = booking_opts
+        self.booking_opts = options
 
         class_eval do
           has_many :bookings, as: :bookable, dependent: :destroy, class_name: '::ActsAsBookable::Booking'

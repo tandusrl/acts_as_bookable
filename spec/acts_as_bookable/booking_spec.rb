@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'Booking model' do
   before(:each) do
-    @booking = ActsAsBookable::Booking.new(amount: 2, schedule: 'ever')
+    @booking = ActsAsBookable::Booking.new(amount: 2)
     @booker = create(:booker)
     @bookable = create(:bookable)
     @booking.booker = @booker
@@ -25,21 +25,6 @@ describe 'Booking model' do
   it 'should not be valid without a bookable' do
     @booking.bookable = nil
     expect(@booking).not_to be_valid
-  end
-
-  it 'should not validate with amount < 0' do
-    @booking.amount = -1
-    expect(@booking.valid?).to be_falsy
-  end
-
-  it 'should not validate without amount' do
-    @booking.amount = nil
-    expect(@booking.valid?).to be_falsy
-  end
-
-  it 'should not validate without schedule' do
-    @booking.schedule = nil
-    expect(@booking.valid?).to be_falsy
   end
 
   it 'should not be valid if booking.booker.booker? is false' do

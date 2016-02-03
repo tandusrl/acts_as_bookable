@@ -18,8 +18,8 @@ describe 'Booker model' do
       @booker.save!
       bookable1 = create(:bookable)
       bookable2 = create(:bookable)
-      booking1 = ActsAsBookable::Booking.create(bookable: bookable1, booker: @booker, schedule: 'ever', amount: 2)
-      booking2 = ActsAsBookable::Booking.create(bookable: bookable2, booker: @booker, schedule: 'ever', amount: 2)
+      booking1 = ActsAsBookable::Booking.create(bookable: bookable1, booker: @booker)
+      booking2 = ActsAsBookable::Booking.create(bookable: bookable2, booker: @booker)
       @booker.reload
     end
 
@@ -35,36 +35,9 @@ describe 'Booker model' do
     end
   end
 
-  describe '#book' do
-    before(:each) do
-      @bookable = create(:bookable)
-    end
-
-    it 'should respond to #book' do
-      expect(@booker).to respond_to :book
-    end
-
-    it 'should create a new booking' do
-      count = @booker.bookings.count
-      new_booking = @booker.book(@bookable)
-      expect(@booker.bookings.count).to eq count+1
-      expect(new_booking.class.to_s).to eq "ActsAsBookable::Booking"
-    end
-
-    it 'should not create a new booking if it\'s not valid' do
-      count = @booker.bookings.count
-      @booker.book(Generic.new)
-      expect(@booker.bookings.count).to eq count
-    end
-
-    it 'should return false if the booking is not valid' do
-      expect(@booker.book(Generic.new)).to eq false
-    end
-  end
-
   describe '#book!' do
     before(:each) do
-      @bookable = create(:bookable)
+      @bookable = create(:room)
     end
 
     it 'should respond to #book!' do
@@ -73,7 +46,7 @@ describe 'Booker model' do
 
     it 'should create a new booking' do
       count = @booker.bookings.count
-      new_booking = @booker.book!(@bookable)
+      new_booking = @booker.book!(@bookable, from_date: Date.today, to_date: Date.today + 1, amount: 2)
       expect(@booker.bookings.count).to eq count+1
       expect(new_booking.class.to_s).to eq "ActsAsBookable::Booking"
     end

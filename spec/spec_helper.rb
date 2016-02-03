@@ -1,5 +1,5 @@
 begin
-  require 'pry-rails'
+  require 'pry-nav'
 rescue LoadError
 end
 $LOAD_PATH << '.' unless $LOAD_PATH.include?('.')

@@ -11,9 +11,9 @@ module ActsAsBookable
 
     validates_presence_of :bookable
     validates_presence_of :booker
-    validates_presence_of :schedule
-    validate :bookable_must_be_bookable, :booker_must_be_booker
-    validates :amount, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+    validate  :bookable_must_be_bookable,
+              :booker_must_be_booker,
+              :booking_costraints
 
     private
       ##
@@ -32,6 +32,12 @@ module ActsAsBookable
         if booker.present? && !booker.class.booker?
           errors.add(:booker, T.er('booking.booker_must_be_booker', model: booker.class.to_s))
         end
+      end
+
+      ##
+      # Validation method. Check validation costraints based on the bookable settings
+      def booking_costraints
+
       end
   end
 end
