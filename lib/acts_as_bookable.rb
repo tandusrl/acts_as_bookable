@@ -28,6 +28,9 @@ module ActsAsBookable
       super "Error validating options for #{model.to_s} - " + message
     end
   end
+
+  class AvailabilityError < StandardError
+  end
 end
 
 ActiveSupport.on_load(:active_record) do

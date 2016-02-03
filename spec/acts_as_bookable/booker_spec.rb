@@ -63,6 +63,11 @@ describe 'Booker model' do
       end
       expect(@booker.bookings.count).to eq count
     end
+
+    it 'should raise ActsAsBookable::AvailabilityError if the bookable is not available' do
+      @booker.book!(@bookable, from_date: Date.today, to_date: Date.today + 1, amount: 2)
+      expect{ @booker.book!(@bookable, from_date: Date.today, to_date: Date.today + 1, amount: 2)}.to raise_error ActsAsBookable::AvailabilityError
+    end
   end
 
 

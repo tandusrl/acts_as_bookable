@@ -2,6 +2,7 @@ module ActsAsBookable::Bookable
   module Core
     def self.included(base)
       base.extend ActsAsBookable::Bookable::Core::ClassMethods
+      base.include ActsAsBookable::Bookable::Core::InstanceMethods
 
       base.initialize_acts_as_bookable_core
     end
@@ -117,11 +118,6 @@ module ActsAsBookable::Bookable
         true
       end
 
-      def bookable(options={})
-        super(options)
-        initialize_acts_as_bookable_core
-      end
-
       private
         ##
         # Set the options
@@ -180,6 +176,51 @@ module ActsAsBookable::Bookable
 
           self.booking_opts.reverse_merge!(defaults)
         end
+    end
+
+    module InstanceMethods
+      ##
+      # Check availability of current bookable, raising an error if the bookable is not available
+      #
+      # @param opts The booking options
+      # @return true if the bookable is available for given options
+      # @raise ActsAsBookable::AvailabilityError if the bookable is not available for given options
+      #
+      # Example:
+      #   @room.check_availability!(from: Date.today, to: Date.tomorrow, amount: 2)
+      def check_availability!(opts)
+        true
+      end
+
+      ##
+      # Check availability of current bookable
+      #
+      # @param opts The booking options
+      # @return true if the bookable is available for given options, otherwise return false
+      #
+      # Example:
+      #   @room.check_availability!(from: Date.today, to: Date.tomorrow, amount: 2)
+      def check_availability(opts)
+        begin
+          check_availability!(opts)
+        rescue ActsAsBookable::AvailabilityError
+          false
+        end
+      end
+
+      ##
+      # Check if options passed for booking this Bookable are valid
+      #
+      # @raise ActsAsBookable::OptionsInvalid if options are not valid
+      # @param opts The booking options
+      #
+      def validate_booking_options!(opts)
+        self.validate_booking_options!(opts)
+      end
+
+      def booker?
+        self.class.booker?
+      end
     end
   end
 end

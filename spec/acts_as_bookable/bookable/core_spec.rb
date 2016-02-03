@@ -1,7 +1,190 @@
 require 'spec_helper'
 
 describe 'Bookable model' do
-  describe '#initialize_acts_as_bookable_core' do
+  describe 'InstanceMethods' do
+    it 'should add a method #check_availability! in instance-side' do
+      @bookable = Bookable.new
+      expect(@bookable).to respond_to :check_availability!
+    end
+
+    it 'should add a method #¢heck_availability in instance-side' do
+      @bookable = Bookable.new
+      expect(@bookable).to respond_to :check_availability
+    end
+
+    it 'should add a method #validate_booking_options! in instance-side' do
+      @bookable = Bookable.new
+      expect(@bookable).to respond_to :validate_booking_options!
+    end
+
+    describe '#check_availability! and check_availability' do
+      after(:each) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      describe 'whithout any costraint' do
+        before(:each) do
+          Bookable.booking_opts = {
+            date_type: :none,
+            time_type: :none,
+            location_type: :none,
+            capacity_type: :none
+          }
+          Bookable.initialize_acts_as_bookable_core
+          @bookable = Bookable.create!(name: 'bookable')
+        end
+
+        it 'should be always available' do
+          expect(@bookable.check_availability({})).to be_truthy
+          expect(@bookable.check_availability!({})).to be_truthy
+        end
+      end
+
+      describe 'with date_type: :range' do
+        before(:each) do
+          Bookable.booking_opts = {
+            date_type: :range,
+            time_type: :none,
+            location_type: :none,
+            capacity_type: :none
+          }
+          Bookable.initialize_acts_as_bookable_core
+          @bookable = Bookable.create!(name: 'bookable', schedule: 'ever')
+        end
+
+        pending 'should be available in available dates'
+        pending 'should not be available in not bookable dates'
+      end
+
+      describe 'with date_type: :fixed' do
+        before(:each) do
+          Bookable.booking_opts = {
+            date_type: :fixed,
+            time_type: :none,
+            location_type: :none,
+            capacity_type: :none
+          }
+          Bookable.initialize_acts_as_bookable_core
+          @bookable = Bookable.create!(name: 'bookable', schedule: 'ever')
+        end
+
+        pending 'should be available in available dates'
+        pending 'should not be available in not bookable dates'
+      end
+    end
+
+    describe 'with time_type: :range' do
+      before(:each) do
+        Bookable.booking_opts = {
+          date_type: :none,
+          time_type: :range,
+          location_type: :none,
+          capacity_type: :none
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable')
+      end
+
+      pending 'should be available in available times'
+      pending 'should not be available in not bookable times'
+    end
+
+    describe 'with time_type: :fixed' do
+      before(:each) do
+        Bookable.booking_opts = {
+          date_type: :none,
+          time_type: :fixed,
+          location_type: :none,
+          capacity_type: :none
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable')
+      end
+
+      pending 'should be available in available times'
+      pending 'should not be available in not bookable times'
+    end
+
+    describe 'with location_type: :range' do
+      before(:each) do
+        Bookable.booking_opts = {
+          date_type: :none,
+          location_type: :range,
+          time_type: :none,
+          capacity_type: :none
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable')
+      end
+
+      pending 'should be available in available locations'
+      pending 'should not be available in not bookable locations'
+    end
+
+    describe 'with location_type: :fixed' do
+      before(:each) do
+        Bookable.booking_opts = {
+          date_type: :none,
+          time_type: :none,
+          location_type: :fixed,
+          capacity_type: :none
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable')
+      end
+
+      pending 'should be available in available locations'
+      pending 'should not be available in not bookable locations'
+    end
+
+    describe 'with capacity_type: :open' do
+      before(:each) do
+        Bookable.booking_opts = {
+          date_type: :none,
+          location_type: :none,
+          time_type: :none,
+          capacity_type: :open
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4)
+      end
+
+      it 'should be available if amount <= capacity' do
+        (1..@bookable.capacity).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_truthy
+          expect(@bookable.check_availability!(amount: amount)).to be_truthy
+        end
+      end
+
+      it 'should not be available if amount > capacity' do
+        expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
+        expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
+      end
+
+      pending 'should be available if already booked but amount <= conditional capacity'
+      pending 'should not be available if amount <= capacity but already booked and amount > conditional capacity'
+    end
+
+    describe 'with capacity_type: :closed' do
+      before(:each) do
+        Bookable.booking_opts = {
+          date_type: :none,
+          time_type: :none,
+          location_type: :none,
+          capacity_type: :closed
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable')
+      end
+
+      pending 'should be available if amount < capacity'
+      pending 'should not be available if amount > capacity'
+      pending 'should not be available if amount < capacity but already booked'
+    end
+  end
+
+  describe 'self.initialize_acts_as_bookable_core' do
     after(:each) do
       Bookable.booking_opts = {}
       Bookable.initialize_acts_as_bookable_core
@@ -91,7 +274,7 @@ describe 'Bookable model' do
     end
   end
 
-  describe '#validate_booking_options!' do
+  describe 'self.validate_booking_options!' do
     before(:each) do
       Bookable.booking_opts = {
         time_type: :none,
