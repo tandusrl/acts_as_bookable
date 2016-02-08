@@ -88,6 +88,61 @@ describe 'Bookable model' do
         expect(@bookable.valid?).to be_truthy
       end
     end
+
+    describe 'when location range is required' do
+      before(:each) do
+        Bookable.booking_opts[:location_type] = :range
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should not validate without from_location' do
+        @bookable.from_location = nil
+        expect(@bookable.valid?).to be_falsy
+      end
+
+      it 'should not validate without to_location' do
+        @bookable.to_location = nil
+        expect(@bookable.valid?).to be_falsy
+      end
+    end
+
+    describe 'when location fixed is required' do
+      before(:each) do
+        Bookable.booking_opts[:location_type] = :fixed
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should not validate without location' do
+        @bookable.location = nil
+        expect(@bookable.valid?).to be_falsy
+      end
+    end
+
+    describe 'when location is not required' do
+      before(:each) do
+        Bookable.booking_opts[:location_type] = :none
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should validate without location range if it\'s not required' do
+        @bookable.from_location = nil
+        @bookable.to_location = nil
+        @bookable.location = nil
+        expect(@bookable.valid?).to be_truthy
+      end
+    end
   end
 
 

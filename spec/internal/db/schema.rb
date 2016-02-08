@@ -16,6 +16,8 @@ ActiveRecord::Schema.define version: 0 do
 
     t.column :amount, :integer
     t.column :schedule, :text
+    t.column :from_date, :date
+    t.column :to_date, :date
     # Limit is created to prevent MySQL error on index
     # length for MyISAM table type: http://bit.ly/vgW2Ql
     # t.string :context, limit: 128
@@ -33,6 +35,9 @@ ActiveRecord::Schema.define version: 0 do
     t.column :name, :string
     t.column :schedule, :text
     t.column :capacity, :integer
+    t.column :location, :string
+    t.column :from_location, :string
+    t.column :to_location, :string
   end
 
   create_table :rooms, force: true do |t|

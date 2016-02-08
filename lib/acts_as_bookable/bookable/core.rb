@@ -189,6 +189,46 @@ module ActsAsBookable::Bookable
       # Example:
       #   @room.check_availability!(from: Date.today, to: Date.tomorrow, amount: 2)
       def check_availability!(opts)
+        # Capacity check (done first because it doesn't require additional queries)
+        if self.booking_opts[:capacity_type] != :none
+          # Amount > capacity
+          if opts[:amount] > self.capacity
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.amount_gt_capacity', model: self.class.to_s)
+          end
+        end
+
+        # TODO Date and time check
+
+        #
+        # Location check
+        #
+        # if location_type is :range, allow only the from_location and to_location specified in current Bookable
+        if (self.booking_opts[:location_type] == :range)
+          if (self.from_location != opts[:from_location] || self.to_location != opts[:to_location])
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_location_range', model: self.class.to_s, from_location: opts[:from_location], to_location: opts[:to_location])
+          end
+        end
+        # if location_type is :fixed, allow only the location specified in current Bookable
+        if (self.booking_opts[:location_type] == :fixed)
+          if (self.location != opts[:location])
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_location', model: self.class.to_s, location: opts[:location])
+          end
+        end
+
+        #
+        # Real capacity check (calculated with overlapped bookings)
+        #
+        overlapped = ActsAsBookable::Booking.overlapped(self, opts)
+        # If capacity_type is :closed cannot book if already booked (no matter if amount < capacity)
+        if (self.booking_opts[:capacity_type] == :closed && !overlapped.empty?)
+          raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.already_booked', model: self.class.to_s)
+        end
+        # if capacity_type is :open, check if amount <= maximum amount of overlapped booking
+        if (self.booking_opts[:capacity_type] == :open && !overlapped.empty?)
+          if(overlapped.sum(:amount) + opts[:amount] > self.capacity)
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.already_booked', model: self.class.to_s)
+          end
+        end
         true
       end
 
@@ -206,6 +246,19 @@ module ActsAsBookable::Bookable
         rescue ActsAsBookable::AvailabilityError
           false
         end
+      end
+
+      ##
+      # Book a bookable. This is an alias method,
+      # equivalent to @booker.book!(@bookable, opts)
+      #
+      # @param booker The booker model
+      # @param opts The booking options
+      #
+      # Example:
+      #   @room.book!(@user, from: Date.today, to: Date.tomorrow, amount: 2)
+      def book!(booker, opts)
+        booker.book!(self, opts)
       end
 
       ##

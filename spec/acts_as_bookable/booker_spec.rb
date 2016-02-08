@@ -51,6 +51,13 @@ describe 'Booker model' do
       expect(new_booking.class.to_s).to eq "ActsAsBookable::Booking"
     end
 
+    it 'new booking should have all fields set' do
+      new_booking = @booker.book!(@bookable, from_date: Date.today, to_date: Date.today + 1, amount: 2)
+      expect(new_booking.from_date).to be_present
+      expect(new_booking.to_date).to be_present
+      expect(new_booking.amount).to be_present
+    end
+
     it 'should raise ActiveRecord::RecordInvalid if new booking is not valid' do
       expect{ @booker.book!(Generic.new) }.to raise_error ActiveRecord::RecordInvalid
     end

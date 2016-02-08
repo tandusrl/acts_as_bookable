@@ -115,11 +115,43 @@ describe 'Bookable model' do
           capacity_type: :none
         }
         Bookable.initialize_acts_as_bookable_core
-        @bookable = Bookable.create!(name: 'bookable')
+        @bookable = Bookable.create!(name: 'bookable', from_location: 'A', to_location: 'B')
       end
 
-      pending 'should be available in available locations'
-      pending 'should not be available in not bookable locations'
+      it 'should be available in available locations' do
+        expect(@bookable.check_availability(from_location: 'A', to_location: 'B')).to be_truthy
+        expect(@bookable.check_availability!(from_location: 'A', to_location: 'B')).to be_truthy
+      end
+
+      it 'should not be available with wrong to_location' do
+        expect(@bookable.check_availability(from_location: 'A', to_location: 'C')).to be_falsy
+        expect{@bookable.check_availability!(from_location: 'A', to_location: 'C')}.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(from_location: 'A', to_location: 'C')
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include('is not available from A to C')
+        end
+      end
+
+      it 'should not be available with wrong from_location' do
+        expect(@bookable.check_availability(from_location: 'C', to_location: 'B')).to be_falsy
+        expect{@bookable.check_availability!(from_location: 'C', to_location: 'B')}.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(from_location: 'C', to_location: 'B')
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include('is not available from C to B')
+        end
+      end
+
+      it 'should not be available with inverted locations' do
+        expect(@bookable.check_availability(from_location: 'B', to_location: 'A')).to be_falsy
+        expect{@bookable.check_availability!(from_location: 'B', to_location: 'A')}.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(from_location: 'B', to_location: 'A')
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include('is not available from B to A')
+        end
+      end
     end
 
     describe 'with location_type: :fixed' do
@@ -131,11 +163,23 @@ describe 'Bookable model' do
           capacity_type: :none
         }
         Bookable.initialize_acts_as_bookable_core
-        @bookable = Bookable.create!(name: 'bookable')
+        @bookable = Bookable.create!(name: 'bookable', location: 'A')
       end
 
-      pending 'should be available in available locations'
-      pending 'should not be available in not bookable locations'
+      it 'should be available in available locations' do
+        expect(@bookable.check_availability(location: 'A')).to be_truthy
+        expect(@bookable.check_availability!(location: 'A')).to be_truthy
+      end
+
+      it 'should not be available in a not available location' do
+        expect(@bookable.check_availability(location: 'B')).to be_falsy
+        expect{@bookable.check_availability!(location: 'B')}.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(location: 'B')
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include('is not available in B')
+        end
+      end
     end
 
     describe 'with capacity_type: :open' do
@@ -160,10 +204,37 @@ describe 'Bookable model' do
       it 'should not be available if amount > capacity' do
         expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
         expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(amount: @bookable.capacity + 1)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include 'cannot be greater'
+        end
       end
 
-      pending 'should be available if already booked but amount <= conditional capacity'
-      pending 'should not be available if amount <= capacity but already booked and amount > conditional capacity'
+      it 'should be available if already booked but amount <= conditional capacity' do
+        booker = create(:booker)
+        @bookable.book!(booker, amount: 2)
+        (1..(@bookable.capacity - 2)).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_truthy
+          expect(@bookable.check_availability!(amount: amount)).to be_truthy
+        end
+      end
+
+      it 'should not be available if amount <= capacity but already booked and amount > conditional capacity' do
+        booker = create(:booker)
+        @bookable.book!(booker, amount: 2)
+        amount = @bookable.capacity - 2 + 1
+        expect(@bookable.check_availability(amount: amount)).to be_falsy
+        expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(amount: amount)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include 'is fully booked'
+        end
+      end
+
+
+      pending 'should be available if amount <= capacity and already booked and amount > conditional capacity but overlappings are separated in time and space'
     end
 
     describe 'with capacity_type: :closed' do
@@ -175,12 +246,43 @@ describe 'Bookable model' do
           capacity_type: :closed
         }
         Bookable.initialize_acts_as_bookable_core
-        @bookable = Bookable.create!(name: 'bookable')
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4)
       end
 
-      pending 'should be available if amount < capacity'
-      pending 'should not be available if amount > capacity'
-      pending 'should not be available if amount < capacity but already booked'
+      it 'should be available if amount <= capacity' do
+        (1..@bookable.capacity).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_truthy
+          expect(@bookable.check_availability!(amount: amount)).to be_truthy
+        end
+      end
+
+      it 'should not be available if amount > capacity' do
+        expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
+        expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(amount: @bookable.capacity + 1)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include 'cannot be greater'
+        end
+      end
+
+      it 'should not be available if already booked (even though amount < capacity - overlapped amounts)' do
+        booker = create(:booker)
+        @bookable.book!(booker, amount: 1)
+        (1..(@bookable.capacity + 1)).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_falsy
+          expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
+          begin
+            @bookable.check_availability!(amount: amount)
+          rescue ActsAsBookable::AvailabilityError => e
+            if(amount <= @bookable.capacity)
+              expect(e.message).to include('is fully booked')
+            else
+              expect(e.message).to include('cannot be greater')
+            end
+          end
+        end
+      end
     end
   end
 
