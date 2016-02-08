@@ -28,6 +28,8 @@ module ActsAsBookable
         self.booking_opts = options
 
         class_eval do
+          serialize :schedule, IceCube::Schedule
+          
           has_many :bookings, as: :bookable, dependent: :destroy, class_name: '::ActsAsBookable::Booking'
 
           validates_presence_of :schedule, if: :schedule_required?

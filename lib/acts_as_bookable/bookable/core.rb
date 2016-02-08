@@ -199,7 +199,7 @@ module ActsAsBookable::Bookable
 
         # TODO Date and time check
 
-        #
+        ##
         # Location check
         #
         # if location_type is :range, allow only the from_location and to_location specified in current Bookable
@@ -215,7 +215,7 @@ module ActsAsBookable::Bookable
           end
         end
 
-        #
+        ##
         # Real capacity check (calculated with overlapped bookings)
         #
         overlapped = ActsAsBookable::Booking.overlapped(self, opts)

@@ -3,7 +3,7 @@ PATH
   specs:
     acts_as_bookable (0.0.1)
       activerecord (>= 3.2, < 5)
-      ice_cube
+      ice_cube (~> 0.13)
 
 GEM
   remote: https://rubygems.org/

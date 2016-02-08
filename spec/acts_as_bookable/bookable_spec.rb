@@ -167,4 +167,14 @@ describe 'Bookable model' do
       expect(ActsAsBookable::Booking.count).to eq count -2
     end
   end
+
+  describe '#schedule' do
+    it 'allows for creation of a bookable with a IceCube schedule' do
+      schedule = IceCube::Schedule.new
+      # Every Monday,Tuesday and Friday
+      schedule.add_recurrence_rule IceCube::Rule.weekly.day(:monday, :tuesday, :friday)
+      @bookable.schedule = schedule
+      expect(@bookable.save).to be_truthy
+    end
+  end
 end
