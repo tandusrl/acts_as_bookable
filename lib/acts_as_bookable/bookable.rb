@@ -29,34 +29,23 @@ module ActsAsBookable
 
         class_eval do
           serialize :schedule, IceCube::Schedule
-          
+
           has_many :bookings, as: :bookable, dependent: :destroy, class_name: '::ActsAsBookable::Booking'
 
           validates_presence_of :schedule, if: :schedule_required?
           validates_presence_of :capacity, if: :capacity_required?
           validates_numericality_of :capacity, if: :capacity_is_set?, only_integer: true, greater_than_or_equal_to: 0
-          validates_presence_of :from_location, if: :location_range_required?
-          validates_presence_of :to_location, if: :location_range_required?
-          validates_presence_of :location, if: :location_fixed_required?
 
           def self.bookable?
             true
           end
 
           def schedule_required?
-            self.booking_opts && self.booking_opts[:date_type] != :none || self.booking_opts && self.booking_opts[:time_type] != :none
+            self.booking_opts && self.booking_opts && self.booking_opts[:time_type] != :none
           end
 
           def capacity_required?
             self.booking_opts && self.booking_opts[:capacity_type] != :none
-          end
-
-          def location_range_required?
-            self.booking_opts && self.booking_opts[:location_type] == :range
-          end
-
-          def location_fixed_required?
-            self.booking_opts && self.booking_opts[:location_type] == :fixed
           end
 
           def capacity_is_set?

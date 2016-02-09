@@ -26,9 +26,7 @@ describe 'Bookable model' do
       describe 'whithout any costraint' do
         before(:each) do
           Bookable.booking_opts = {
-            date_type: :none,
             time_type: :none,
-            location_type: :none,
             capacity_type: :none
           }
           Bookable.initialize_acts_as_bookable_core
@@ -40,46 +38,12 @@ describe 'Bookable model' do
           expect(@bookable.check_availability!({})).to be_truthy
         end
       end
-
-      describe 'with date_type: :range' do
-        before(:each) do
-          Bookable.booking_opts = {
-            date_type: :range,
-            time_type: :none,
-            location_type: :none,
-            capacity_type: :none
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', schedule: 'ever')
-        end
-
-        pending 'should be available in available dates'
-        pending 'should not be available in not bookable dates'
-      end
-
-      describe 'with date_type: :fixed' do
-        before(:each) do
-          Bookable.booking_opts = {
-            date_type: :fixed,
-            time_type: :none,
-            location_type: :none,
-            capacity_type: :none
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', schedule: 'ever')
-        end
-
-        pending 'should be available in available dates'
-        pending 'should not be available in not bookable dates'
-      end
     end
 
     describe 'with time_type: :range' do
       before(:each) do
         Bookable.booking_opts = {
-          date_type: :none,
           time_type: :range,
-          location_type: :none,
           capacity_type: :none
         }
         Bookable.initialize_acts_as_bookable_core
@@ -93,9 +57,7 @@ describe 'Bookable model' do
     describe 'with time_type: :fixed' do
       before(:each) do
         Bookable.booking_opts = {
-          date_type: :none,
           time_type: :fixed,
-          location_type: :none,
           capacity_type: :none
         }
         Bookable.initialize_acts_as_bookable_core
@@ -106,87 +68,9 @@ describe 'Bookable model' do
       pending 'should not be available in not bookable times'
     end
 
-    describe 'with location_type: :range' do
-      before(:each) do
-        Bookable.booking_opts = {
-          date_type: :none,
-          location_type: :range,
-          time_type: :none,
-          capacity_type: :none
-        }
-        Bookable.initialize_acts_as_bookable_core
-        @bookable = Bookable.create!(name: 'bookable', from_location: 'A', to_location: 'B')
-      end
-
-      it 'should be available in available locations' do
-        expect(@bookable.check_availability(from_location: 'A', to_location: 'B')).to be_truthy
-        expect(@bookable.check_availability!(from_location: 'A', to_location: 'B')).to be_truthy
-      end
-
-      it 'should not be available with wrong to_location' do
-        expect(@bookable.check_availability(from_location: 'A', to_location: 'C')).to be_falsy
-        expect{@bookable.check_availability!(from_location: 'A', to_location: 'C')}.to raise_error ActsAsBookable::AvailabilityError
-        begin
-          @bookable.check_availability!(from_location: 'A', to_location: 'C')
-        rescue ActsAsBookable::AvailabilityError => e
-          expect(e.message).to include('is not available from A to C')
-        end
-      end
-
-      it 'should not be available with wrong from_location' do
-        expect(@bookable.check_availability(from_location: 'C', to_location: 'B')).to be_falsy
-        expect{@bookable.check_availability!(from_location: 'C', to_location: 'B')}.to raise_error ActsAsBookable::AvailabilityError
-        begin
-          @bookable.check_availability!(from_location: 'C', to_location: 'B')
-        rescue ActsAsBookable::AvailabilityError => e
-          expect(e.message).to include('is not available from C to B')
-        end
-      end
-
-      it 'should not be available with inverted locations' do
-        expect(@bookable.check_availability(from_location: 'B', to_location: 'A')).to be_falsy
-        expect{@bookable.check_availability!(from_location: 'B', to_location: 'A')}.to raise_error ActsAsBookable::AvailabilityError
-        begin
-          @bookable.check_availability!(from_location: 'B', to_location: 'A')
-        rescue ActsAsBookable::AvailabilityError => e
-          expect(e.message).to include('is not available from B to A')
-        end
-      end
-    end
-
-    describe 'with location_type: :fixed' do
-      before(:each) do
-        Bookable.booking_opts = {
-          date_type: :none,
-          time_type: :none,
-          location_type: :fixed,
-          capacity_type: :none
-        }
-        Bookable.initialize_acts_as_bookable_core
-        @bookable = Bookable.create!(name: 'bookable', location: 'A')
-      end
-
-      it 'should be available in available locations' do
-        expect(@bookable.check_availability(location: 'A')).to be_truthy
-        expect(@bookable.check_availability!(location: 'A')).to be_truthy
-      end
-
-      it 'should not be available in a not available location' do
-        expect(@bookable.check_availability(location: 'B')).to be_falsy
-        expect{@bookable.check_availability!(location: 'B')}.to raise_error ActsAsBookable::AvailabilityError
-        begin
-          @bookable.check_availability!(location: 'B')
-        rescue ActsAsBookable::AvailabilityError => e
-          expect(e.message).to include('is not available in B')
-        end
-      end
-    end
-
     describe 'with capacity_type: :open' do
       before(:each) do
         Bookable.booking_opts = {
-          date_type: :none,
-          location_type: :none,
           time_type: :none,
           capacity_type: :open
         }
@@ -240,9 +124,7 @@ describe 'Bookable model' do
     describe 'with capacity_type: :closed' do
       before(:each) do
         Bookable.booking_opts = {
-          date_type: :none,
           time_type: :none,
-          location_type: :none,
           capacity_type: :closed
         }
         Bookable.initialize_acts_as_bookable_core
@@ -300,53 +182,13 @@ describe 'Bookable model' do
       end
 
       it 'preset options for room' do
-        Bookable.booking_opts = {preset: 'room'}
-        Bookable.initialize_acts_as_bookable_core
-        expect(Bookable.booking_opts[:preset]).to eq 'room'
-        expect(Bookable.booking_opts[:date_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:time_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:location_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:capacity_type]).to be(:open).or be(:closed)
-      end
-
-      it 'preset options for event' do
-        Bookable.booking_opts = {preset: 'event'}
-        Bookable.initialize_acts_as_bookable_core
-        expect(Bookable.booking_opts[:preset]).to eq 'event'
-        expect(Bookable.booking_opts[:date_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:time_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:location_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:capacity_type]).to be(:open).or be(:closed)
-      end
-
-      it 'preset options for show' do
-        Bookable.booking_opts = {preset: 'show'}
-        Bookable.initialize_acts_as_bookable_core
-        expect(Bookable.booking_opts[:preset]).to eq 'show'
-        expect(Bookable.booking_opts[:date_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:time_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:location_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:capacity_type]).to be(:open).or be(:closed)
-      end
-
-      # it 'preset options for table' do
-      #   Bookable.booking_opts = {preset: 'table'}
-      #   Bookable.initialize_acts_as_bookable_core
-      #   expect(Bookable.booking_opts[:preset]).to eq 'table'
-      #   expect(Bookable.booking_opts[:date_type]).to be(:range).or be(:fixed).or be(:none)
-      #   expect(Bookable.booking_opts[:time_type]).to be(:range).or be(:fixed).or be(:none)
-      #   expect(Bookable.booking_opts[:location_type]).to be(:range).or be(:fixed).or be(:none)
-      #   expect(Bookable.booking_opts[:capacity_type]).to be(:open).or be(:closed)
-      # end
-
-      it 'preset options for taxi' do
-        Bookable.booking_opts = {preset: 'taxi'}
-        Bookable.initialize_acts_as_bookable_core
-        expect(Bookable.booking_opts[:preset]).to eq 'taxi'
-        expect(Bookable.booking_opts[:date_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:time_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:location_type]).to be(:range).or be(:fixed).or be(:none)
-        expect(Bookable.booking_opts[:capacity_type]).to be(:open).or be(:closed)
+        ['room','event','show'].each do |p|
+          Bookable.booking_opts = {preset: p}
+          Bookable.initialize_acts_as_bookable_core
+          expect(Bookable.booking_opts[:preset]).to eq p
+          expect(Bookable.booking_opts[:time_type]).to be(:range).or be(:fixed).or be(:none)
+          expect(Bookable.booking_opts[:capacity_type]).to be(:open).or be(:closed)
+        end
       end
 
       it 'fails when using an unknown preset' do
@@ -358,9 +200,9 @@ describe 'Bookable model' do
         Bookable.booking_opts = {}
         Bookable.initialize_acts_as_bookable_core
         expect(Bookable.booking_opts[:preset]).to be_present
-        expect(Bookable.booking_opts[:date_type]).to be_present
+        expect(Bookable.booking_opts[:date_type]).not_to be_present
         expect(Bookable.booking_opts[:time_type]).to be_present
-        expect(Bookable.booking_opts[:location_type]).to be_present
+        expect(Bookable.booking_opts[:location_type]).not_to be_present
         expect(Bookable.booking_opts[:capacity_type]).to be_present
       end
 
@@ -368,10 +210,40 @@ describe 'Bookable model' do
         Bookable.booking_opts = {time_type: :range, capacity_type: :closed}
         Bookable.initialize_acts_as_bookable_core
         expect(Bookable.booking_opts[:preset]).to be_present
-        expect(Bookable.booking_opts[:date_type]).to be_present
+        expect(Bookable.booking_opts[:date_type]).not_to be_present
         expect(Bookable.booking_opts[:time_type]).to be :range
-        expect(Bookable.booking_opts[:location_type]).to be_present
+        expect(Bookable.booking_opts[:location_type]).not_to be_present
         expect(Bookable.booking_opts[:capacity_type]).to be :closed
+      end
+
+      it 'should not allow unknown keys' do
+        Bookable.booking_opts = {unknown: 'lol'}
+        expect { Bookable.initialize_acts_as_bookable_core }.to raise_error ActsAsBookable::InitializationError
+        begin
+          Bookable.initialize_acts_as_bookable_core
+        rescue ActsAsBookable::InitializationError => e
+          expect(e.message).to include 'is not a valid option'
+        end
+      end
+
+      it 'should not allow unknown values on :time_type' do
+        Bookable.booking_opts = {time_type: :unknown}
+        expect { Bookable.initialize_acts_as_bookable_core }.to raise_error ActsAsBookable::InitializationError
+        begin
+          Bookable.initialize_acts_as_bookable_core
+        rescue ActsAsBookable::InitializationError => e
+          expect(e.message).to include 'is not a valid value for time_type'
+        end
+      end
+
+      it 'should not allow unknown values on :capacity_type' do
+        Bookable.booking_opts = {capacity_type: :unknown}
+        expect { Bookable.initialize_acts_as_bookable_core }.to raise_error ActsAsBookable::InitializationError
+        begin
+          Bookable.initialize_acts_as_bookable_core
+        rescue ActsAsBookable::InitializationError => e
+          expect(e.message).to include 'is not a valid value for capacity_type'
+        end
       end
     end
   end
@@ -380,100 +252,14 @@ describe 'Bookable model' do
     before(:each) do
       Bookable.booking_opts = {
         time_type: :none,
-        location_type: :none,
-        capacity_type: :none,
-        date_type: :none
+        capacity_type: :none
       }
       @opts = {}
     end
 
-    describe 'with date_type: :none, location_type: :none and date_type: :none' do
+    describe 'with capacity_type: :none and time_type: :none' do
       it 'validates with default options' do
         expect(Bookable.validate_booking_options!(@opts)).to be_truthy
-      end
-    end
-
-    describe 'with date_type = ' do
-      describe ':range' do
-        before(:each) do
-          Bookable.booking_opts[:date_type] = :range
-          Bookable.initialize_acts_as_bookable_core
-          @opts[:from_date] = Date.today + 10.days
-          @opts[:to_date] = Date.today + 14.days
-        end
-
-        it 'validates with all options fields set' do
-          expect(Bookable.validate_booking_options!(@opts)).to be_truthy
-        end
-
-        it 'requires from_date as Date' do
-          @opts[:from_date] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-          @opts[:from_date] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'requires to_date as Date' do
-          @opts[:to_date] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-          @opts[:to_date] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept a fixed date' do
-          @opts[:date] = Date.today
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-      end
-
-      describe ':fixed' do
-        before(:each) do
-          Bookable.booking_opts[:date_type] = :fixed
-          Bookable.initialize_acts_as_bookable_core
-          @opts[:date] = Date.today + 15
-        end
-
-        it 'validates with the right fields set' do
-          expect(Bookable.validate_booking_options!(@opts)).to be_truthy
-        end
-
-        it 'requires date as Date' do
-          @opts[:date] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-          @opts[:date] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept from_date' do
-          @opts[:from_date] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept to_date' do
-          @opts[:to_date] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-      end
-
-      describe ':none' do
-        before(:each) do
-          Bookable.initialize_acts_as_bookable_core
-        end
-
-        it 'doesn\'t accept date' do
-          @opts[:date] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept from_date' do
-          @opts[:from_date] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept to_date' do
-          @opts[:to_date] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
       end
     end
 
@@ -482,8 +268,8 @@ describe 'Bookable model' do
         before(:each) do
           Bookable.booking_opts[:time_type] = :range
           Bookable.initialize_acts_as_bookable_core
-          @opts[:from_time] = Time.now + 1.hour
-          @opts[:to_time] = Time.now + 4.hours
+          @opts[:time_start] = Time.now + 1.hour
+          @opts[:time_end] = Time.now + 4.hours
         end
 
         it 'validates with all options fields set' do
@@ -491,16 +277,16 @@ describe 'Bookable model' do
         end
 
         it 'requires from_time as Time' do
-          @opts[:from_time] = nil
+          @opts[:time_start] = nil
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-          @opts[:from_time] = 'String'
+          @opts[:time_start] = 'String'
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'requires to_time as Time' do
-          @opts[:to_time] = nil
+          @opts[:time_end] = nil
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-          @opts[:to_time] = 'String'
+          @opts[:time_end] = 'String'
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
@@ -529,12 +315,12 @@ describe 'Bookable model' do
         end
 
         it 'doesn\'t accept from_time' do
-          @opts[:from_time] = Time.now + 13
+          @opts[:time_start] = Time.now + 13
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_time' do
-          @opts[:to_time] = Time.now + 15
+          @opts[:time_end] = Time.now + 15
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end
@@ -550,90 +336,12 @@ describe 'Bookable model' do
         end
 
         it 'doesn\'t accept from_time' do
-          @opts[:from_time] = Time.now + 13
+          @opts[:time_start] = Time.now + 13
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
         it 'doesn\'t accept to_time' do
-          @opts[:to_time] = Time.now + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-      end
-    end
-
-    describe 'with location_type = ' do
-      describe ':range' do
-        before(:each) do
-          Bookable.booking_opts[:location_type] = :range
-          Bookable.initialize_acts_as_bookable_core
-          @opts[:from_location] = 'Torino'
-          @opts[:to_location] = 'Cuneo'
-        end
-
-        it 'validates with all options fields set' do
-          expect(Bookable.validate_booking_options!(@opts)).to be_truthy
-        end
-
-        it 'requires from_location as String' do
-          @opts[:from_location] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'requires to_location as String' do
-          @opts[:to_location] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept a fixed location' do
-          @opts[:time] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-      end
-
-      describe ':fixed' do
-        before(:each) do
-          Bookable.booking_opts[:location_type] = :fixed
-          Bookable.initialize_acts_as_bookable_core
-          @opts[:location] = 'Torino'
-        end
-
-        it 'validates with the right fields set' do
-          expect(Bookable.validate_booking_options!(@opts)).to be_truthy
-        end
-
-        it 'requires location as String' do
-          @opts[:location] = nil
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept from_location' do
-          @opts[:from_location] = 'String'
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept to_location' do
-          @opts[:to_location] = Date.today + 15
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-      end
-
-      describe ':none' do
-        before(:each) do
-          Bookable.initialize_acts_as_bookable_core
-        end
-
-        it 'doesn\'t accept date' do
-          @opts[:location] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept from_location' do
-          @opts[:from_location] = Date.today + 13
-          expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
-        end
-
-        it 'doesn\'t accept to_location' do
-          @opts[:to_location] = Date.today + 15
+          @opts[:time_end] = Time.now + 15
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
       end

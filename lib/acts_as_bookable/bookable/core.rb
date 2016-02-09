@@ -29,63 +29,29 @@ module ActsAsBookable::Bookable
         # Set unpermitted parameters and required parameters depending on Bookable options
         #
 
-        # Switch :date_type
-        case self.booking_opts[:date_type]
-        # when :range, we need :from_date and :to_date
-        when :range
-          required_params[:from_date] = Date
-          required_params[:to_date] = Date
-          unpermitted_params << :date
-        when :fixed
-          required_params[:date] = Date
-          unpermitted_params << :from_date
-          unpermitted_params << :to_date
-        when :none
-          unpermitted_params << :from_date
-          unpermitted_params << :to_date
-          unpermitted_params << :date
-        end
-
         # Switch :time_type
         case self.booking_opts[:time_type]
-        # when :range, we need :from_time and :to_time
+        # when :range, we need :time_start and :time_end
         when :range
-          required_params[:from_time] = Time
-          required_params[:to_time] = Time
+          required_params[:time_start] = [Time,Date]
+          required_params[:time_end] = [Time,Date]
           unpermitted_params << :time
         when :fixed
-          required_params[:time] = Time
-          unpermitted_params << :from_time
-          unpermitted_params << :to_time
+          required_params[:time] = [Time,Date]
+          unpermitted_params << :time_start
+          unpermitted_params << :time_end
         when :none
-          unpermitted_params << :from_time
-          unpermitted_params << :to_time
+          unpermitted_params << :time_start
+          unpermitted_params << :time_end
           unpermitted_params << :time
-        end
-
-        # Switch :location_type
-        case self.booking_opts[:location_type]
-        # when :range, we need :from_location and :to_location
-        when :range
-          required_params[:from_location] = String
-          required_params[:to_location] = String
-          unpermitted_params << :location
-        when :fixed
-          required_params[:location] = String
-          unpermitted_params << :from_location
-          unpermitted_params << :to_location
-        when :none
-          unpermitted_params << :from_location
-          unpermitted_params << :to_location
-          unpermitted_params << :location
         end
 
         # Switch :capacity_type
         case self.booking_opts[:capacity_type]
         when :closed
-          required_params[:amount] = Integer
+          required_params[:amount] = [Integer]
         when :open
-          required_params[:amount] = Integer
+          required_params[:amount] = [Integer]
         when :none
           unpermitted_params << :amount
         end
@@ -97,8 +63,8 @@ module ActsAsBookable::Bookable
           .select{ |p| options.has_key?(p) }
           .map{ |p| "'#{p}'"}
         wrong_types = required_params
-          .select{ |k,v| options.has_key?(k) && !options[k].is_a?(v) }
-          .map{ |k,v| "'#{k}' must be a '#{v.to_s}' but '#{options[k].class.to_s}' found" }
+          .select{ |k,v| options.has_key?(k) && (v.select{|type| options[k].is_a?(type)}.length == 0) }
+          .map{ |k,v| "'#{k}' must be a '#{v.join(' or ')}' but '#{options[k].class.to_s}' found" }
         required_params = required_params
           .select{ |k,v| !options.has_key?(k) }
           .map{ |k,v| "'#{k}'" }
@@ -128,52 +94,47 @@ module ActsAsBookable::Bookable
 
           defaults = nil
 
+          # Validates options
+          permitted_options = {
+            time_type: [:range, :fixed, :none],
+            capacity_type: [:open, :closed, :none],
+            preset: ['room','event','show']
+          }
+          self.booking_opts.each_pair do |key, val|
+            if !permitted_options.has_key? key
+              raise ActsAsBookable::InitializationError.new(self, "#{key} is not a valid option")
+            elsif !permitted_options[key].include? val
+              raise ActsAsBookable::InitializationError.new(self, "#{val} is not a valid value for #{key}. Allowed values are: #{permitted_options[key]}")
+            end
+          end
+
           case self.booking_opts[:preset]
           # Room preset
           when 'room'
             defaults = {
-              date_type: :range,      # from_date is check-in, to_date is check-out
-              time_type: :none,       # time is ininfluent for booking: users book for the whole day
-              location_type: :none,   # location is ininfluent for booking: users book a room which already is located somewhere
+              time_type: :range,      # time_start is check-in, time_end is check-out
               capacity_type: :closed  # capacity is closed: after the first booking the room is not bookable anymore, even though the capacity has not been reached
             }
           # Event preset (e.g. a birthday party)
           when 'event'
             defaults = {
-              date_type: :none,       # date is ininfluent for booking. An event has already a date set and users have no choice.
-              time_type: :none,       # time is ininfluent for booking. An event has a range of times, but users have no choice.
-              location_type: :none,   # location is ininfluent
+              time_type: :none,       # time is ininfluent for booking an event.
               capacity_type: :open    # capacity is open: after a booking the event is still bookable until capacity is reached.
             }
           # Show preset (e.g. a movie)
           when 'show'
             defaults = {
-              date_type: :fixed,      # date is fixed: a user chooses the exact date of a show
-              time_type: :fixed,      # time is fixed: a user chooses the time of the show
-              location_type: :none,   # location is ininfluent
+              time_type: :fixed,      # time is fixed: a user chooses the time of the show (the show may have a number of occurrences)
               capacity_type: :open    # capacity is open: after a booking the show is still bookable until capacity is reached
             }
-          # # TODO: implement this.
-          # # Table preset (e.g. restaurant)
-          # when 'table'
-          #   defaults = {
-          #     date_type: :fixed,      # date is fixed: a user chooses the exact date
-          #     time_type: :range,      #
-          #     location_type: :none,
-          #     capacity_type: :closed
-          #   }
-          # Car preset (e.g. car sharing)
-          when 'taxi'
-            defaults = {
-              date_type: :fixed,      # Date is fixed. For car sharing the user chooses the exact date
-              time_type: :fixed,      # Time is fixed. User chooses starting time of car sharing
-              location_type: :range,  # Location is range. User chooses the starting location and the ending location
-              capacity_type: :closed  # capacity is closed: after the first booking the car is not bookable anymore, even though the capacity has not been reached
-            }
           else
-            raise ActsAsBookable::InitializationError.new(self, "#{self.booking_opts[:preset]} is not a valid preset")
+            defaults = {
+              time_type: :none,
+              capacity_type: :open
+            }
           end
 
+          # Merge options with defaults
           self.booking_opts.reverse_merge!(defaults)
         end
     end
