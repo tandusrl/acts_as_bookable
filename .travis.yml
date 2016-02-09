@@ -16,6 +16,8 @@ gemfile:
   - gemfiles/activerecord_3.2.gemfile
   - gemfiles/activerecord_4.0.gemfile
   - gemfiles/activerecord_4.1.gemfile
+  - gemfiles/activerecord_4.2.gemfile
+  - gemfiles/activerecord_5.0.gemfile
 
 sudo: false
 
@@ -37,4 +39,3 @@ matrix:
         gemfile: gemfiles/activerecord_4.1.gemfile
       - rvm: rbx-2
         gemfile: gemfiles/activerecord_3.2.gemfile
-

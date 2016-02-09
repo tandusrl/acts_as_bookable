@@ -38,4 +38,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'factory_girl_rails'
   gem.add_development_dependency 'barrier'
   gem.add_development_dependency 'database_cleaner'
+  gem.add_development_dependency 'awesome_print'
 end
