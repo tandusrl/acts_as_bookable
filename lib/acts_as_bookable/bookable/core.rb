@@ -2,7 +2,7 @@ module ActsAsBookable::Bookable
   module Core
     def self.included(base)
       base.extend ActsAsBookable::Bookable::Core::ClassMethods
-      base.include ActsAsBookable::Bookable::Core::InstanceMethods
+      base.send :include, ActsAsBookable::Bookable::Core::InstanceMethods
 
       base.initialize_acts_as_bookable_core
     end
