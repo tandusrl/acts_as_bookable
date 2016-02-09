@@ -18,4 +18,5 @@ group :local_development do
   gem 'rake'
   gem 'byebug' , platform: :mri_21
   gem 'pry-nav'
+  gem 'awesome_print'
 end

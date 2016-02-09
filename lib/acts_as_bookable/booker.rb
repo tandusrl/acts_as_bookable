@@ -52,6 +52,7 @@ module ActsAsBookable
 
         # reload the bookable to make changes available
         bookable.reload
+        self.reload
         booking
       end
 

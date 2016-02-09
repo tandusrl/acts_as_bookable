@@ -13,6 +13,7 @@ require 'barrier'
 require 'database_cleaner'
 require 'factory_girl_rails'
 require 'ice_cube'
+require 'awesome_print'
 
 ENGINE_RAILS_ROOT=File.join(File.dirname(__FILE__), '../')
 Dir[File.join(ENGINE_RAILS_ROOT, "spec/factories/**/*.rb")].each {|f| require f }

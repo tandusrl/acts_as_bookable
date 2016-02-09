@@ -39,6 +39,7 @@ GEM
       rake
       thor (>= 0.14.0)
     arel (6.0.3)
+    awesome_print (1.6.1)
     barrier (1.0.2)
     builder (3.2.2)
     byebug (8.2.2)
@@ -148,6 +149,7 @@ PLATFORMS
 DEPENDENCIES
   acts_as_bookable!
   appraisal
+  awesome_print
   barrier
   byebug
   database_cleaner
