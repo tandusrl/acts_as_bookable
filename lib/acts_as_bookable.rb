@@ -1,6 +1,7 @@
 require 'active_record'
 require 'active_record/version'
 require 'active_support/core_ext/module'
+require 'time_difference'
 
 require_relative 'acts_as_bookable/engine'  if defined?(Rails)
 

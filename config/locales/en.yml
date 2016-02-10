@@ -8,5 +8,4 @@ en:
         availability:
           amount_gt_capacity: "amount cannot be greater than %{model} capacity"
           already_booked: "the %{model} is fully booked"
-          unavailable_location_range: "the %{model} is not available from %{from_location} to %{to_location}"
-          unavailable_location: "the %{model} is not available in %{location}"
+          unavailable_time: "the %{model} is not available from %{time_start} to %{time_end}"

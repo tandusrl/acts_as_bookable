@@ -158,26 +158,30 @@ module ActsAsBookable::Bookable
           end
         end
 
-        # TODO Date and time check
-
         ##
-        # Location check
+        # Time check
         #
-        # if location_type is :range, allow only the from_location and to_location specified in current Bookable
-        if (self.booking_opts[:location_type] == :range)
-          if (self.from_location != opts[:from_location] || self.to_location != opts[:to_location])
-            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_location_range', model: self.class.to_s, from_location: opts[:from_location], to_location: opts[:to_location])
+        if self.booking_opts[:time_type] == :range
+          available = false
+          query_start = opts[:time_start].to_time
+          query_end = opts[:time_end].to_time
+          query_duration = (query_end - query_start).seconds
+          if self.schedule.occurring_between?(query_start, query_end) && self.schedule.occurring_at?(query_start) && self.schedule.occurring_at?(query_end)
+            query_duration = (query_end - query_start).seconds
+            first_occurrence_remaining_duration = self.schedule.next_occurrence(query_start) + self.schedule.duration - query_start
+            binding.pry
+            if(query_duration < first_occurrence_remaining_duration)
+              available = true
+            end
           end
-        end
-        # if location_type is :fixed, allow only the location specified in current Bookable
-        if (self.booking_opts[:location_type] == :fixed)
-          if (self.location != opts[:location])
-            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_location', model: self.class.to_s, location: opts[:location])
+          if !available
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_time', model: self.class.to_s, time_start: query_start, time_end: query_end)
           end
         end
 
         ##
         # Real capacity check (calculated with overlapped bookings)
+        # TODO: improve this
         #
         overlapped = ActsAsBookable::Booking.overlapped(self, opts)
         # If capacity_type is :closed cannot book if already booked (no matter if amount < capacity)
