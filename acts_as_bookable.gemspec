@@ -26,11 +26,7 @@ Gem::Specification.new do |gem|
     gem.post_install_message = File.read('UPGRADING.md')
   end
 
-  gem.add_dependency 'ice_cube', '~> 0.13'
-  gem.add_dependency 'time_difference', '~> 0.4'
-
   gem.add_runtime_dependency 'activerecord', ['>= 3.2', '< 5']
-  gem.add_runtime_dependency 'ice_cube', '~> 0.13'
 
   gem.add_development_dependency 'sqlite3'
   gem.add_development_dependency 'mysql2', '~> 0.3.7'

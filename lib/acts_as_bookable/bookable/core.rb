@@ -162,20 +162,13 @@ module ActsAsBookable::Bookable
         # Time check
         #
         if self.booking_opts[:time_type] == :range
-          available = false
-          query_start = opts[:time_start].to_time
-          query_end = opts[:time_end].to_time
-          query_duration = (query_end - query_start).seconds
-          if self.schedule.occurring_between?(query_start, query_end) && self.schedule.occurring_at?(query_start) && self.schedule.occurring_at?(query_end)
-            query_duration = (query_end - query_start).seconds
-            first_occurrence_remaining_duration = self.schedule.next_occurrence(query_start) + self.schedule.duration - query_start
-            binding.pry
-            if(query_duration < first_occurrence_remaining_duration)
-              available = true
-            end
+          if !(ActsAsBookable::TimeHelpers.interval_in_schedule?(self.schedule, opts[:time_start], opts[:time_end]))
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_interval', model: self.class.to_s, time_start: opts[:time_start], time_end: opts[:time_end])
           end
-          if !available
-            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_time', model: self.class.to_s, time_start: query_start, time_end: query_end)
+        end
+        if self.booking_opts[:time_type] == :fixed
+          if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time]))
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_time', model: self.class.to_s, time: opts[:time])
           end
         end
 
