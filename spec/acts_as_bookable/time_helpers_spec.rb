@@ -150,4 +150,209 @@ describe 'ActsAsBookable::TimeHelpers' do
       end
     end
   end
+
+  describe '#subintervals' do
+    before :each do
+      @time = Time.now
+    end
+
+    it 'returns ArgumentError if called without an array' do
+      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+    end
+
+    it 'returns ArgumentError if an interval has no time_start or time_end' do
+      intervals = [
+        {time_start: @time, time_end: @time + 1.hour},
+        {time_start: @time}
+      ]
+      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      intervals = [
+        {time_end: @time, time_end: @time + 1.hour},
+        {time_end: @time}
+      ]
+      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+    end
+
+    it 'returns ArgumentError if time_start or time_end is not a Time or Date' do
+      intervals = [
+        {time_start: @time, time_end: 1}
+      ]
+      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      intervals = [
+        {time_end: 2, time_end: @time + 1.hour}
+      ]
+      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+    end
+
+    it 'returns empty array if input is an empty array' do
+      expect(ActsAsBookable::TimeHelpers.subintervals([])).to eq []
+    end
+
+    # |----|
+    # =>
+    # |----|
+    it 'returns a copy of the same interval if input is a single interval' do
+      intervals = [
+        {time_start: @time, time_end: @time + 1.hour}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 1
+      expect(subintervals[0][:time_start]).to eq intervals[0][:time_start]
+      expect(subintervals[0][:time_end]).to eq intervals[0][:time_end]
+    end
+
+    # |----| |----| |----|
+    # =>
+    # |----| |----| |----|
+    it 'returns a copy of the same intervals if they are all separated' do
+      intervals = [
+        {time_start: @time, time_end: @time + 1.hour},
+        {time_start: @time + 2.hours, time_end: @time + 3.hours},
+        {time_start: @time + 4.hours, time_end: @time + 5.hours}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 3
+      (0..2).each do |i|
+        expect(subintervals[i][:time_start]).to eq intervals[i][:time_start]
+        expect(subintervals[i][:time_end]).to eq intervals[i][:time_end]
+      end
+    end
+
+    # |----|
+    # |----|
+    # |----|
+    # =>
+    # |----|
+    it 'merges intervals if they have same time_start and time_end' do
+      intervals = [
+        {time_start: @time, time_end: @time + 1.hour},
+        {time_start: @time, time_end: @time + 1.hour},
+        {time_start: @time, time_end: @time + 1.hour}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 1
+      expect(subintervals[0][:time_start]).to eq intervals[0][:time_start]
+      expect(subintervals[0][:time_end]).to eq intervals[0][:time_end]
+    end
+
+    # |---|
+    # |------|
+    # =>
+    # |---|
+    #     |--|
+    it 'returns two intervals if input is 2 intervals with same time_start and different time_end' do
+      time0 = @time
+      time1 = @time + 1.hour
+      time2 = @time + 2.hours
+      intervals = [
+        {time_start: time0, time_end: time1},
+        {time_start: time0, time_end: time2}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 2
+      expect(subintervals[0][:time_start]).to eq time0
+      expect(subintervals[0][:time_end]).to eq time1
+      expect(subintervals[1][:time_start]).to eq time1
+      expect(subintervals[1][:time_end]).to eq time2
+    end
+
+    # |------|
+    #    |---|
+    # =>
+    # |--|
+    #    |---|
+    it 'returns two intervals if input is 2 intervals with same time_end and different time_start' do
+      time0 = @time
+      time1 = @time + 1.hour
+      time2 = @time + 2.hours
+      intervals = [
+        {time_start: time0, time_end: time2},
+        {time_start: time1, time_end: time2}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 2
+      expect(subintervals[0][:time_start]).to eq time0
+      expect(subintervals[0][:time_end]).to eq time1
+      expect(subintervals[1][:time_start]).to eq time1
+      expect(subintervals[1][:time_end]).to eq time2
+    end
+
+    # |---------|
+    #    |---|
+    # =>
+    # |--|
+    #    |---|
+    #        |--|
+    it 'returns three intervals if one includes another' do
+      time0 = @time
+      time1 = @time + 1.hour
+      time2 = @time + 2.hours
+      time3 = @time + 3.hours
+      intervals = [
+        {time_start: time0, time_end: time3},
+        {time_start: time1, time_end: time2}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 3
+      expect(subintervals[0][:time_start]).to eq time0
+      expect(subintervals[0][:time_end]).to eq time1
+      expect(subintervals[1][:time_start]).to eq time1
+      expect(subintervals[1][:time_end]).to eq time2
+      expect(subintervals[2][:time_start]).to eq time2
+      expect(subintervals[2][:time_end]).to eq time3
+    end
+
+    # |---2---|
+    #     |------4------|
+    # |----3------|
+    #                      |----1----|
+    #                      |----8----|
+    # =>
+    # |-5-|
+    #     |-9-|
+    #         |-7-|
+    #             |--4--|
+    #                      |----9----|
+    it 'correctly merges interval attributes' do
+      time0 = @time
+      time1 = @time + 1.hour
+      time2 = @time + 2.hours
+      time3 = @time + 3.hours
+      time4 = @time + 4.hours
+      time5 = @time + 5.hours
+      time6 = @time + 6.hours
+      intervals = [
+        {time_start: time0, time_end: time2, attr: 2},
+        {time_start: time1, time_end: time4, attr: 4},
+        {time_start: time0, time_end: time3, attr: 3},
+        {time_start: time5, time_end: time6, attr: 1}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+        res = {}
+          if op == :open
+            res = {attr: a[:attr] + b[:attr]}
+          end
+          if op == :close
+            res = {attr: a[:attr] - b[:attr]}
+          end
+        res
+      end
+      expect(subintervals.length).to eq 5
+      expect(subintervals[0][:time_start]).to eq time0
+      expect(subintervals[0][:time_end]).to eq time1
+      expect(subintervals[0][:attr]).to eq 5
+      expect(subintervals[1][:time_start]).to eq time1
+      expect(subintervals[1][:time_end]).to eq time2
+      expect(subintervals[1][:attr]).to eq 9
+      expect(subintervals[2][:time_start]).to eq time2
+      expect(subintervals[2][:time_end]).to eq time3
+      expect(subintervals[2][:attr]).to eq 7
+      expect(subintervals[3][:time_start]).to eq time3
+      expect(subintervals[3][:time_end]).to eq time4
+      expect(subintervals[3][:attr]).to eq 4
+      expect(subintervals[4][:time_start]).to eq time4
+      expect(subintervals[4][:time_end]).to eq time5
+      expect(subintervals[4][:attr]).to eq 9
+    end
+  end
 end
