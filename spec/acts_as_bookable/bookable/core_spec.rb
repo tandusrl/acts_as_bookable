@@ -106,7 +106,7 @@ describe 'Bookable model' do
           capacity_type: :none
         }
         Bookable.initialize_acts_as_bookable_core
-        @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date, duration: 1.day))
+        @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date))
         ## bookable the first and third day of the month, at 9AM
         @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3]).hour_of_day(9)
         @bookable.save!
@@ -205,8 +205,22 @@ describe 'Bookable model' do
         end
       end
 
-
-      pending 'should be available if amount <= capacity and already booked and amount > conditional capacity but overlappings are separated in time and space'
+      it 'should be available if amount <= capacity and already booked and amount > conditional capacity but overlappings are separated in time and space' do
+        Bookable.booking_opts = {
+          time_type: :range,
+          capacity_type: :open
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4, schedule: IceCube::Schedule.new(Date.today, duration: 1.day))
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
+        booker = create(:booker)
+        puts "sadfasdfasdfasd\n\n\nasdfasdfasdf"
+        @bookable.book!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours - 1.second)
+        @bookable.book!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours - 1.second)
+        @bookable.book!(booker, amount: 3, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)
+        amount = 1
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_truthy
+      end
     end
 
     describe 'with capacity_type: :closed' do
@@ -364,14 +378,14 @@ describe 'Bookable model' do
           expect(Bookable.validate_booking_options!(@opts)).to be_truthy
         end
 
-        it 'requires from_time as Time' do
+        it 'requires time_start as Time' do
           @opts[:time_start] = nil
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:time_start] = 'String'
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
-        it 'requires to_time as Time' do
+        it 'requires time_end as Time' do
           @opts[:time_end] = nil
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           @opts[:time_end] = 'String'
@@ -402,12 +416,12 @@ describe 'Bookable model' do
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
-        it 'doesn\'t accept from_time' do
+        it 'doesn\'t accept time_start' do
           @opts[:time_start] = Time.now + 13
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
-        it 'doesn\'t accept to_time' do
+        it 'doesn\'t accept time_end' do
           @opts[:time_end] = Time.now + 15
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
@@ -423,12 +437,12 @@ describe 'Bookable model' do
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
-        it 'doesn\'t accept from_time' do
+        it 'doesn\'t accept time_start' do
           @opts[:time_start] = Time.now + 13
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end
 
-        it 'doesn\'t accept to_time' do
+        it 'doesn\'t accept time_end' do
           @opts[:time_end] = Time.now + 15
           expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
         end

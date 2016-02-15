@@ -17,37 +17,15 @@ module ActsAsBookable
     scope :overlapped, ->(bookable,opts) {
       query = where(bookable_id: bookable.id)
 
-      # Date options
-      if(opts[:date].present?)
-        query = query.where(date: opts[:date])
-      end
-      if(opts[:from_date].present?)
-        query = query.where('from_date >= ?', opts[:from_date])
-      end
-      if(opts[:to_date].present?)
-        query = query.where('to_date <= ?', opts[:to_date])
-      end
-
       # Time options
       if(opts[:time].present?)
         query = query.where(time: opts[:time])
       end
-      if(opts[:from_time].present?)
-        query = query.where('from_time >= ?', opts[:from_time])
+      if(opts[:time_start].present?)
+        query = query.where('time_end > ?', opts[:time_start])
       end
-      if(opts[:to_time].present?)
-        query = query.where('to_time <= ?', opts[:to_time])
-      end
-
-      # Location options
-      if(opts[:location].present?)
-        query = query.where(location: opts[:location])
-      end
-      if(opts[:from_location].present?)
-        query = query.where(from_location: opts[:from_location])
-      end
-      if(opts[:to_location].present?)
-        query = query.where(to_location: opts[:to_location])
+      if(opts[:time_end].present?)
+        query = query.where('time_start <= ?', opts[:time_end])
       end
       query
     }

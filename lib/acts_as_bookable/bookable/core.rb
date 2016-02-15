@@ -80,6 +80,13 @@ module ActsAsBookable::Bookable
           raise ActsAsBookable::OptionsInvalid.new(self, message)
         end
 
+        #
+        # Convert options (Date to Time)
+        #
+        options[:time_start] = options[:time_start].to_time if options[:time_start].present?
+        options[:time_end] = options[:time_end].to_time if options[:time_end].present?
+        options[:time] = options[:time].to_time if options[:time].present?
+
         # Return true if everything's ok
         true
       end
@@ -174,7 +181,6 @@ module ActsAsBookable::Bookable
 
         ##
         # Real capacity check (calculated with overlapped bookings)
-        # TODO: improve this
         #
         overlapped = ActsAsBookable::Booking.overlapped(self, opts)
         # If capacity_type is :closed cannot book if already booked (no matter if amount < capacity)
