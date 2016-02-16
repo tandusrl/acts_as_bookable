@@ -1,8 +1,9 @@
 require 'active_record'
 require 'active_record/version'
 require 'active_support/core_ext/module'
-
 require_relative 'acts_as_bookable/engine'  if defined?(Rails)
+require 'ice_cube'
+IceCube.compatibility = 12 # Drop compatibility for :start_date, avoiding a bunch of warnings caused by serialization
 
 module ActsAsBookable
   extend ActiveSupport::Autoload

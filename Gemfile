@@ -10,8 +10,6 @@ gemspec
 # Git. Remember to move these dependencies to your gemspec before releasing
 # your gem to rubygems.org.
 
-gem 'ice_cube', :git => 'git://github.com/Chosko/ice_cube.git', :ref => '3d10bd68863a6902caddc346d273b273759a7e7d'
-
 # To use a debugger
 group :local_development do
   gem 'guard'
