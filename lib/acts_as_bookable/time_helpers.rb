@@ -94,7 +94,7 @@ module ActsAsBookable
           steps << { opening: -1, time: el[:time_end], attrs: attrs.clone } # End step
         end
 
-        # Sort steps by time
+        # Sort steps by time (and opening if time is the same)
         steps.sort! do |a,b|
           diff = a[:time] <=> b[:time]
           diff = a[:opening] <=> b[:opening] if (diff == 0)
