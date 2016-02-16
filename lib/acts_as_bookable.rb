@@ -12,6 +12,7 @@ module ActsAsBookable
   autoload :Booking
   autoload :T
   autoload :VERSION
+  autoload :TimeHelpers
 
   autoload_under 'bookable' do
     autoload :Core

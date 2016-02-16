@@ -80,6 +80,13 @@ module ActsAsBookable::Bookable
           raise ActsAsBookable::OptionsInvalid.new(self, message)
         end
 
+        #
+        # Convert options (Date to Time)
+        #
+        options[:time_start] = options[:time_start].to_time if options[:time_start].present?
+        options[:time_end] = options[:time_end].to_time if options[:time_end].present?
+        options[:time] = options[:time].to_time if options[:time].present?
+
         # Return true if everything's ok
         true
       end
@@ -90,7 +97,7 @@ module ActsAsBookable::Bookable
         #
         def set_options
           # The default preset is 'room'
-          self.booking_opts[:preset] ||= 'room'
+          self.booking_opts[:preset]
 
           defaults = nil
 
@@ -98,7 +105,8 @@ module ActsAsBookable::Bookable
           permitted_options = {
             time_type: [:range, :fixed, :none],
             capacity_type: [:open, :closed, :none],
-            preset: ['room','event','show']
+            preset: ['room','event','show'],
+            bookable_across_occurrences: [true, false]
           }
           self.booking_opts.each_pair do |key, val|
             if !permitted_options.has_key? key
@@ -113,24 +121,28 @@ module ActsAsBookable::Bookable
           when 'room'
             defaults = {
               time_type: :range,      # time_start is check-in, time_end is check-out
-              capacity_type: :closed  # capacity is closed: after the first booking the room is not bookable anymore, even though the capacity has not been reached
+              capacity_type: :closed,  # capacity is closed: after the first booking the room is not bookable anymore, even though the capacity has not been reached
+              bookable_across_occurrences: true # a room is bookable across recurrences: if a recurrence is daily, a booker must be able to book from a date to another date, even though time_start and time_end falls in different occurrences of the schedule
             }
           # Event preset (e.g. a birthday party)
           when 'event'
             defaults = {
               time_type: :none,       # time is ininfluent for booking an event.
-              capacity_type: :open    # capacity is open: after a booking the event is still bookable until capacity is reached.
+              capacity_type: :open,    # capacity is open: after a booking the event is still bookable until capacity is reached.
+              bookable_across_occurrences: false # an event is not bookable across recurrences
             }
           # Show preset (e.g. a movie)
           when 'show'
             defaults = {
               time_type: :fixed,      # time is fixed: a user chooses the time of the show (the show may have a number of occurrences)
-              capacity_type: :open    # capacity is open: after a booking the show is still bookable until capacity is reached
+              capacity_type: :open,    # capacity is open: after a booking the show is still bookable until capacity is reached
+              bookable_across_occurrences: false # a show is not bookable across recurrences
             }
           else
             defaults = {
               time_type: :none,
-              capacity_type: :open
+              capacity_type: :none,
+              bookable_across_occurrences: false
             }
           end
 
@@ -158,21 +170,36 @@ module ActsAsBookable::Bookable
           end
         end
 
-        # TODO Date and time check
-
         ##
-        # Location check
+        # Time check
         #
-        # if location_type is :range, allow only the from_location and to_location specified in current Bookable
-        if (self.booking_opts[:location_type] == :range)
-          if (self.from_location != opts[:from_location] || self.to_location != opts[:to_location])
-            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_location_range', model: self.class.to_s, from_location: opts[:from_location], to_location: opts[:to_location])
+        if self.booking_opts[:time_type] == :range
+          time_check_ok = true
+          # If it's bookable across recurrences, just check start time and end time
+          if self.booking_opts[:bookable_across_occurrences]
+            # Check start time
+            if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time_start]))
+              time_check_ok = false
+            end
+            # Check end time
+            if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time_end]))
+              time_check_ok = false
+            end
+          # If it's not bookable across recurrences, check if the whole interval is included in an occurrence
+          else
+            # Check the whole interval
+            if !(ActsAsBookable::TimeHelpers.interval_in_schedule?(self.schedule, opts[:time_start], opts[:time_end]))
+              time_check_ok = false
+            end
+          end
+          # If something went wrong
+          unless time_check_ok
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_interval', model: self.class.to_s, time_start: opts[:time_start], time_end: opts[:time_end])
           end
         end
-        # if location_type is :fixed, allow only the location specified in current Bookable
-        if (self.booking_opts[:location_type] == :fixed)
-          if (self.location != opts[:location])
-            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_location', model: self.class.to_s, location: opts[:location])
+        if self.booking_opts[:time_type] == :fixed
+          if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time]))
+            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_time', model: self.class.to_s, time: opts[:time])
           end
         end
 
@@ -186,8 +213,26 @@ module ActsAsBookable::Bookable
         end
         # if capacity_type is :open, check if amount <= maximum amount of overlapped booking
         if (self.booking_opts[:capacity_type] == :open && !overlapped.empty?)
-          if(overlapped.sum(:amount) + opts[:amount] > self.capacity)
-            raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.already_booked', model: self.class.to_s)
+          # if time_type is :range, split in sub-intervals and check the maximum sum of amounts against capacity for each sub-interval
+          if (self.booking_opts[:time_type] == :range)
+            # Map overlapped bookings to a set of intervals with amount
+            intervals = overlapped.map { |e| {time_start: e.time_start, time_end: e.time_end, amount: e.amount} }
+            # Make subintervals from overlapped bookings and check capacity for each of them
+            ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+              case op
+              when :open
+                res = {amount: a[:amount] + b[:amount]}
+              when :close
+                res = {amount: a[:amount] - b[:amount]}
+              end
+              raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.already_booked', model: self.class.to_s) if (res[:amount] > self.capacity)
+              res
+            end
+          # else, just sum the amounts (fixed times are not intervals and they overlap if are the same)
+          else
+            if(overlapped.sum(:amount) + opts[:amount] > self.capacity)
+              raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.already_booked', model: self.class.to_s)
+            end
           end
         end
         true

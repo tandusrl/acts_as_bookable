@@ -1,9 +1,15 @@
+GIT
+  remote: git://github.com/Chosko/ice_cube.git
+  revision: 3d10bd68863a6902caddc346d273b273759a7e7d
+  ref: 3d10bd68863a6902caddc346d273b273759a7e7d
+  specs:
+    ice_cube (0.13.3)
+
 PATH
   remote: .
   specs:
     acts_as_bookable (0.0.1)
       activerecord (>= 3.2, < 5)
-      ice_cube (~> 0.13)
 
 GEM
   remote: https://rubygems.org/
@@ -69,7 +75,6 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     i18n (0.7.0)
-    ice_cube (0.13.3)
     json (1.8.3)
     listen (3.0.5)
       rb-fsevent (>= 0.9.3)
@@ -156,6 +161,7 @@ DEPENDENCIES
   factory_girl_rails
   guard
   guard-rspec
+  ice_cube!
   mysql2 (~> 0.3.7)
   pg
   pry-nav

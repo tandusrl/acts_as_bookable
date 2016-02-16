@@ -16,8 +16,9 @@ ActiveRecord::Schema.define version: 0 do
 
     t.column :amount, :integer
     t.column :schedule, :text
-    t.column :time_start, :time
-    t.column :time_end, :time
+    t.column :time_start, :datetime
+    t.column :time_end, :datetime
+    t.column :time, :datetime
     # Limit is created to prevent MySQL error on index
     # length for MyISAM table type: http://bit.ly/vgW2Ql
     # t.string :context, limit: 128
