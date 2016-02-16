@@ -167,7 +167,7 @@ describe 'ActsAsBookable::TimeHelpers' do
       ]
       expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
       intervals = [
-        {time_end: @time, time_end: @time + 1.hour},
+        {time_start: @time, time_end: @time + 1.hour},
         {time_end: @time}
       ]
       expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
@@ -179,7 +179,7 @@ describe 'ActsAsBookable::TimeHelpers' do
       ]
       expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
       intervals = [
-        {time_end: 2, time_end: @time + 1.hour}
+        {time_start: 2, time_end: @time + 1.hour}
       ]
       expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
     end
@@ -216,6 +216,37 @@ describe 'ActsAsBookable::TimeHelpers' do
         expect(subintervals[i][:time_start]).to eq intervals[i][:time_start]
         expect(subintervals[i][:time_end]).to eq intervals[i][:time_end]
       end
+    end
+
+    #               |----|
+    #        |----|
+    # |----|
+    # =>
+    # |----|
+    #        |----|
+    #               |----|
+    it 'returns the sub-intervals sorted' do
+      time0 = @time
+      time1 = @time + 1.hour
+      time2 = @time + 2.hours
+      time3 = @time + 3.hours
+      time4 = @time + 4.hours
+      time5 = @time + 5.hours
+      time6 = @time + 6.hours
+
+      intervals = [
+        {time_start: time4, time_end: time5},
+        {time_start: time2, time_end: time3},
+        {time_start: time0, time_end: time1}
+      ]
+      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      expect(subintervals.length).to eq 3
+      expect(subintervals[0][:time_start]).to eq time0
+      expect(subintervals[0][:time_end]).to eq time1
+      expect(subintervals[1][:time_start]).to eq time2
+      expect(subintervals[1][:time_end]).to eq time3
+      expect(subintervals[2][:time_start]).to eq time4
+      expect(subintervals[2][:time_end]).to eq time5
     end
 
     # |----|
@@ -325,17 +356,17 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time0, time_end: time2, attr: 2},
         {time_start: time1, time_end: time4, attr: 4},
         {time_start: time0, time_end: time3, attr: 3},
-        {time_start: time5, time_end: time6, attr: 1}
+        {time_start: time5, time_end: time6, attr: 1},
+        {time_start: time5, time_end: time6, attr: 8}
       ]
       subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
-        res = {}
           if op == :open
             res = {attr: a[:attr] + b[:attr]}
           end
           if op == :close
             res = {attr: a[:attr] - b[:attr]}
           end
-        res
+          res
       end
       expect(subintervals.length).to eq 5
       expect(subintervals[0][:time_start]).to eq time0
@@ -350,8 +381,8 @@ describe 'ActsAsBookable::TimeHelpers' do
       expect(subintervals[3][:time_start]).to eq time3
       expect(subintervals[3][:time_end]).to eq time4
       expect(subintervals[3][:attr]).to eq 4
-      expect(subintervals[4][:time_start]).to eq time4
-      expect(subintervals[4][:time_end]).to eq time5
+      expect(subintervals[4][:time_start]).to eq time5
+      expect(subintervals[4][:time_end]).to eq time6
       expect(subintervals[4][:attr]).to eq 9
     end
   end

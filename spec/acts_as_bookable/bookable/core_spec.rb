@@ -275,7 +275,7 @@ describe 'Bookable model' do
         @bookable.book!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
         @bookable.book!(booker, amount: 3, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)
         amount = 1
-        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
       end
 
       it 'should not be available if amount <= capacity and already booked and amount > conditional capacity' do
@@ -292,8 +292,11 @@ describe 'Bookable model' do
         @bookable.book!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
         @bookable.book!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
         @bookable.book!(booker, amount: 1, time_start: Date.today + 8.hours, time_end: Date.today + 24.hours)
-        amount = 1
-        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_falsy
+        amount = 2
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
       end
     end
 

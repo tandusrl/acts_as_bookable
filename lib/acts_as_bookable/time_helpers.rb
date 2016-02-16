@@ -105,12 +105,6 @@ module ActsAsBookable
             last_time = step[:time]
             last_attrs = step[:attrs]
           else
-            if block_given?
-              last_attrs = block.call(last_attrs.clone, step[:attrs],(step[:opening] == 1 ? :open : :close))
-            else
-              last_attrs = step[:attrs]
-            end
-
             if(step[:time] > last_time)
               subintervals << ({
                 time_start: last_time,
@@ -118,6 +112,12 @@ module ActsAsBookable
               }.merge(last_attrs))
 
               last_time = step[:time]
+            end
+
+            if block_given?
+              last_attrs = block.call(last_attrs.clone, step[:attrs],(step[:opening] == 1 ? :open : :close))
+            else
+              last_attrs = step[:attrs]
             end
           end
 
