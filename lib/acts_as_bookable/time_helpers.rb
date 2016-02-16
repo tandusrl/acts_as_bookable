@@ -94,9 +94,11 @@ module ActsAsBookable
           steps << { opening: -1, time: el[:time_end], attrs: attrs.clone } # End step
         end
 
-        # Sort steps
+        # Sort steps by time
         steps.sort! do |a,b|
-          a[:time] <=> b[:time]
+          diff = a[:time] <=> b[:time]
+          diff = a[:opening] <=> b[:opening] if (diff == 0)
+          diff
         end
 
         # Iterate over steps

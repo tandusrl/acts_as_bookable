@@ -19,13 +19,13 @@ module ActsAsBookable
 
       # Time options
       if(opts[:time].present?)
-        query = query.where(time: opts[:time])
+        query = query.where(time: opts[:time].to_time)
       end
       if(opts[:time_start].present?)
-        query = query.where('time_end > ?', opts[:time_start])
+        query = query.where('time_end >= ?', opts[:time_start].to_time)
       end
       if(opts[:time_end].present?)
-        query = query.where('time_start <= ?', opts[:time_end])
+        query = query.where('time_start < ?', opts[:time_end].to_time)
       end
       query
     }

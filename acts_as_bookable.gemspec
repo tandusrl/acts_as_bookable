@@ -11,8 +11,8 @@ Gem::Specification.new do |gem|
   gem.authors     = ["Chosko"]
   gem.email       = ["ruben.caliandro@gmail.com"]
   gem.homepage    = "https://github.com/tandusrl/acts_as_bookable"
-  gem.summary     = "A reservation plugin for Rails applications that allows resources to be bookable"
-  gem.description = "A reservation plugin for Rails applications that allows resources to be bookable"
+  gem.summary     = "The reservation engine for Rails applications that allows resources to be booked"
+  gem.description = "The reservation engine for Rails applications that allows resources to be booked"
   gem.licenses    = ["MIT"]
   gem.platform    = Gem::Platform::RUBY
 
@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.test_files    =  gem.files.grep(%r{^spec/})
 
   gem.require_paths = ['lib']
-  gem.required_ruby_version = '>= 1.9.3'
+  gem.required_ruby_version = '>= 2.0.0'
 
   if File.exist?('UPGRADING.md')
     gem.post_install_message = File.read('UPGRADING.md')
