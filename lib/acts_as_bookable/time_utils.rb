@@ -3,7 +3,7 @@ module ActsAsBookable
   # Provide helper functions to manage operations and queries related to times
   # and schedules
   #
-  module TimeHelpers
+  module TimeUtils
     class << self
       ##
       # Check if time is included in a time interval. The ending time is excluded

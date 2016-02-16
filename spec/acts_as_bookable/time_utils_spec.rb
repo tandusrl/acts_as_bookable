@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'ActsAsBookable::TimeHelpers' do
+describe 'ActsAsBookable::TimeUtils' do
 
   describe '#time_in_interval?' do
     before :each do
@@ -11,17 +11,17 @@ describe 'ActsAsBookable::TimeHelpers' do
     describe 'returns true' do
       it 'when time is the interval_start' do
         time = @interval_start
-        expect(ActsAsBookable::TimeHelpers.time_in_interval?(time,@interval_start,@interval_end)).to eq true
+        expect(ActsAsBookable::TimeUtils.time_in_interval?(time,@interval_start,@interval_end)).to eq true
       end
 
       it 'when time is bewteen interval_start and interval_end' do
         time = @interval_start + 5.minutes
-        expect(ActsAsBookable::TimeHelpers.time_in_interval?(time,@interval_start,@interval_end)).to eq true
+        expect(ActsAsBookable::TimeUtils.time_in_interval?(time,@interval_start,@interval_end)).to eq true
       end
 
       it 'when time is very close to interval end' do
         time = @interval_end - 1.second
-        expect(ActsAsBookable::TimeHelpers.time_in_interval?(time,@interval_start,@interval_end)).to eq true
+        expect(ActsAsBookable::TimeUtils.time_in_interval?(time,@interval_start,@interval_end)).to eq true
       end
 
     end
@@ -29,17 +29,17 @@ describe 'ActsAsBookable::TimeHelpers' do
     describe 'returns false' do
       it 'when time is before interval_start' do
         time = @interval_start - 1.second
-        expect(ActsAsBookable::TimeHelpers.time_in_interval?(time,@interval_start,@interval_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.time_in_interval?(time,@interval_start,@interval_end)).to eq false
       end
 
       it 'when time is after interval_end' do
         time = @interval_end + 1.second
-        expect(ActsAsBookable::TimeHelpers.time_in_interval?(time,@interval_start,@interval_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.time_in_interval?(time,@interval_start,@interval_end)).to eq false
       end
 
       it 'when time is interval_end' do
         time = @interval_end
-        expect(ActsAsBookable::TimeHelpers.time_in_interval?(time,@interval_start,@interval_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.time_in_interval?(time,@interval_start,@interval_end)).to eq false
       end
     end
   end
@@ -55,19 +55,19 @@ describe 'ActsAsBookable::TimeHelpers' do
       it 'when range starts and ends in the middle of an occurrence' do
         time_start = @day0 + 1.hour
         time_end = @day0 + 3.hours
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq true
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq true
       end
 
       it 'when range starts and ends in the middle of another occurrence' do
         time_start = @day0 + 2.days + 1.hour
         time_end = @day0 + 2.days + 3.hours
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq true
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq true
       end
 
       it 'when range starts at the beginning of an occurrence and ends at the end of the same occurence' do
         time_start = @day0
         time_end = @day0 + 1.day - 1.second
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq true
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq true
       end
     end
 
@@ -75,37 +75,37 @@ describe 'ActsAsBookable::TimeHelpers' do
       it 'when range starts and ends outside any occurrence' do
         time_start = '2016-01-15'.to_date
         time_end = time_start + 1.day
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
       end
 
       it 'when range starts and ends outside any occurrence but contains an occurrence' do
         time_start = @day0 - 1.hour
         time_end = @day0 + 1.day + 1.hour
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
       end
 
       it 'when range starts within an occurrence but ends outside it' do
         time_start = @day0 + 1.hour
         time_end = @day0 + 1.day + 1.hour
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
       end
 
       it 'when range starts outside any occurrence but ends within an occurrence' do
         time_start = @day0 - 1.hour
         time_end = @day0 + 1.hour
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
       end
 
       it 'when range starts within an occurrence and ends within a different occurrence' do
         time_start = @day0 + 1.hour
         time_end = @day0 + 2.days + 1.hour
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
       end
 
       it 'when range starts within an occurrence and ends just after the end of the same occurrence' do
         time_start = @day0 + 1.hour
         time_end = @day0 + 1.day
-        expect(ActsAsBookable::TimeHelpers.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
+        expect(ActsAsBookable::TimeUtils.interval_in_schedule?(@schedule,time_start,time_end)).to eq false
       end
     end
   end
@@ -120,29 +120,29 @@ describe 'ActsAsBookable::TimeHelpers' do
     describe 'returns true' do
       it 'when time is at the beginning of an occurrence' do
         time = @day0
-        expect(ActsAsBookable::TimeHelpers.time_in_schedule?(@schedule,time)).to eq true
+        expect(ActsAsBookable::TimeUtils.time_in_schedule?(@schedule,time)).to eq true
       end
 
       it 'when time is in the middle of an occurrence' do
         time = @day0 + 5.hours
-        expect(ActsAsBookable::TimeHelpers.time_in_schedule?(@schedule,time)).to eq true
+        expect(ActsAsBookable::TimeUtils.time_in_schedule?(@schedule,time)).to eq true
       end
 
       it 'when time is at the end of an occurrence' do
         time = @day0 + 1.day - 1.second
-        expect(ActsAsBookable::TimeHelpers.time_in_schedule?(@schedule, time)).to eq true
+        expect(ActsAsBookable::TimeUtils.time_in_schedule?(@schedule, time)).to eq true
       end
     end
 
     describe 'retuns false' do
       it 'when time is outside an occurrence' do
         time = '2016-01-15'.to_date
-        expect(ActsAsBookable::TimeHelpers.time_in_schedule?(@schedule, time)).to eq false
+        expect(ActsAsBookable::TimeUtils.time_in_schedule?(@schedule, time)).to eq false
       end
 
       it 'when time is close to the end of an occurrence, but outside it' do
         time = @day0 + 1.day
-        expect(ActsAsBookable::TimeHelpers.time_in_schedule?(@schedule, time)).to eq false
+        expect(ActsAsBookable::TimeUtils.time_in_schedule?(@schedule, time)).to eq false
       end
 
       it 'when time is close to the beginning of an occurrence, but outside it' do
@@ -157,7 +157,7 @@ describe 'ActsAsBookable::TimeHelpers' do
     end
 
     it 'returns ArgumentError if called without an array' do
-      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
     end
 
     it 'returns ArgumentError if an interval has no time_start or time_end' do
@@ -165,27 +165,27 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: @time, time_end: @time + 1.hour},
         {time_start: @time}
       ]
-      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
       intervals = [
         {time_start: @time, time_end: @time + 1.hour},
         {time_end: @time}
       ]
-      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
     end
 
     it 'returns ArgumentError if time_start or time_end is not a Time or Date' do
       intervals = [
         {time_start: @time, time_end: 1}
       ]
-      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
       intervals = [
         {time_start: 2, time_end: @time + 1.hour}
       ]
-      expect{ ActsAsBookable::TimeHelpers.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
     end
 
     it 'returns empty array if input is an empty array' do
-      expect(ActsAsBookable::TimeHelpers.subintervals([])).to eq []
+      expect(ActsAsBookable::TimeUtils.subintervals([])).to eq []
     end
 
     # |----|
@@ -195,7 +195,7 @@ describe 'ActsAsBookable::TimeHelpers' do
       intervals = [
         {time_start: @time, time_end: @time + 1.hour}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 1
       expect(subintervals[0][:time_start]).to eq intervals[0][:time_start]
       expect(subintervals[0][:time_end]).to eq intervals[0][:time_end]
@@ -210,7 +210,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: @time + 2.hours, time_end: @time + 3.hours},
         {time_start: @time + 4.hours, time_end: @time + 5.hours}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 3
       (0..2).each do |i|
         expect(subintervals[i][:time_start]).to eq intervals[i][:time_start]
@@ -239,7 +239,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time2, time_end: time3},
         {time_start: time0, time_end: time1}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 3
       expect(subintervals[0][:time_start]).to eq time0
       expect(subintervals[0][:time_end]).to eq time1
@@ -260,7 +260,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: @time, time_end: @time + 1.hour},
         {time_start: @time, time_end: @time + 1.hour}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 1
       expect(subintervals[0][:time_start]).to eq intervals[0][:time_start]
       expect(subintervals[0][:time_end]).to eq intervals[0][:time_end]
@@ -279,7 +279,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time0, time_end: time1},
         {time_start: time0, time_end: time2}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 2
       expect(subintervals[0][:time_start]).to eq time0
       expect(subintervals[0][:time_end]).to eq time1
@@ -300,7 +300,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time0, time_end: time2},
         {time_start: time1, time_end: time2}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 2
       expect(subintervals[0][:time_start]).to eq time0
       expect(subintervals[0][:time_end]).to eq time1
@@ -323,7 +323,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time0, time_end: time3},
         {time_start: time1, time_end: time2}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals)
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals)
       expect(subintervals.length).to eq 3
       expect(subintervals[0][:time_start]).to eq time0
       expect(subintervals[0][:time_end]).to eq time1
@@ -359,7 +359,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time5, time_end: time6, attr: 1},
         {time_start: time5, time_end: time6, attr: 8}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals) do |a,b,op|
           if op == :open
             res = {attr: a[:attr] + b[:attr]}
           end
@@ -412,7 +412,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time5, time_end: time6, attr: 1},
         {time_start: time5, time_end: time6, attr: 8}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals) do |a,b,op|
           if op == :open
             res = {attr: a[:attr] + b[:attr]}
           end
@@ -460,7 +460,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time0, time_end: time1, attr: 1},
         {time_start: time1, time_end: time2, attr: 1}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals) do |a,b,op|
           if op == :open
             res = {attr: a[:attr] + b[:attr]}
           end
@@ -501,7 +501,7 @@ describe 'ActsAsBookable::TimeHelpers' do
         {time_start: time0, time_end: time2, attr: 1},
         {time_start: time1, time_end: time3, attr: 1}
       ]
-      subintervals = ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+      subintervals = ActsAsBookable::TimeUtils.subintervals(intervals) do |a,b,op|
         if op == :open
           res = {attr: a[:attr] + b[:attr]}
         end

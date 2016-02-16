@@ -178,17 +178,17 @@ module ActsAsBookable::Bookable
           # If it's bookable across recurrences, just check start time and end time
           if self.booking_opts[:bookable_across_occurrences]
             # Check start time
-            if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time_start]))
+            if !(ActsAsBookable::TimeUtils.time_in_schedule?(self.schedule, opts[:time_start]))
               time_check_ok = false
             end
             # Check end time
-            if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time_end]))
+            if !(ActsAsBookable::TimeUtils.time_in_schedule?(self.schedule, opts[:time_end]))
               time_check_ok = false
             end
           # If it's not bookable across recurrences, check if the whole interval is included in an occurrence
           else
             # Check the whole interval
-            if !(ActsAsBookable::TimeHelpers.interval_in_schedule?(self.schedule, opts[:time_start], opts[:time_end]))
+            if !(ActsAsBookable::TimeUtils.interval_in_schedule?(self.schedule, opts[:time_start], opts[:time_end]))
               time_check_ok = false
             end
           end
@@ -198,7 +198,7 @@ module ActsAsBookable::Bookable
           end
         end
         if self.booking_opts[:time_type] == :fixed
-          if !(ActsAsBookable::TimeHelpers.time_in_schedule?(self.schedule, opts[:time]))
+          if !(ActsAsBookable::TimeUtils.time_in_schedule?(self.schedule, opts[:time]))
             raise ActsAsBookable::AvailabilityError.new ActsAsBookable::T.er('.availability.unavailable_time', model: self.class.to_s, time: opts[:time])
           end
         end
@@ -218,7 +218,7 @@ module ActsAsBookable::Bookable
             # Map overlapped bookings to a set of intervals with amount
             intervals = overlapped.map { |e| {time_start: e.time_start, time_end: e.time_end, amount: e.amount} }
             # Make subintervals from overlapped bookings and check capacity for each of them
-            ActsAsBookable::TimeHelpers.subintervals(intervals) do |a,b,op|
+            ActsAsBookable::TimeUtils.subintervals(intervals) do |a,b,op|
               case op
               when :open
                 res = {amount: a[:amount] + b[:amount]}
@@ -255,15 +255,15 @@ module ActsAsBookable::Bookable
       end
 
       ##
-      # Book a bookable. This is an alias method,
+      # Accept a booking by a booker. This is an alias method,
       # equivalent to @booker.book!(@bookable, opts)
       #
       # @param booker The booker model
       # @param opts The booking options
       #
       # Example:
-      #   @room.book!(@user, from: Date.today, to: Date.tomorrow, amount: 2)
-      def book!(booker, opts)
+      #   @room.be_booked!(@user, from: Date.today, to: Date.tomorrow, amount: 2)
+      def be_booked!(booker, opts={})
         booker.book!(self, opts)
       end
 

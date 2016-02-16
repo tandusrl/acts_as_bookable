@@ -23,7 +23,7 @@ describe 'Bookable model' do
         Bookable.initialize_acts_as_bookable_core
       end
 
-      describe 'whithout any costraint' do
+      describe 'whithout any constraint' do
         before(:each) do
           Bookable.booking_opts = {
             time_type: :none,
@@ -240,7 +240,7 @@ describe 'Bookable model' do
 
       it 'should be available if already booked but amount <= conditional capacity' do
         booker = create(:booker)
-        @bookable.book!(booker, amount: 2)
+        @bookable.be_booked!(booker, amount: 2)
         (1..(@bookable.capacity - 2)).each do |amount|
           expect(@bookable.check_availability(amount: amount)).to be_truthy
           expect(@bookable.check_availability!(amount: amount)).to be_truthy
@@ -249,7 +249,7 @@ describe 'Bookable model' do
 
       it 'should not be available if amount <= capacity but already booked and amount > conditional capacity' do
         booker = create(:booker)
-        @bookable.book!(booker, amount: 2)
+        @bookable.be_booked!(booker, amount: 2)
         amount = @bookable.capacity - 2 + 1
         expect(@bookable.check_availability(amount: amount)).to be_falsy
         expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
@@ -271,9 +271,9 @@ describe 'Bookable model' do
         @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
         @bookable.save!
         booker = create(:booker)
-        @bookable.book!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
-        @bookable.book!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
-        @bookable.book!(booker, amount: 3, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)
         amount = 1
         expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
       end
@@ -289,9 +289,9 @@ describe 'Bookable model' do
         @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
         @bookable.save!
         booker = create(:booker)
-        @bookable.book!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
-        @bookable.book!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
-        @bookable.book!(booker, amount: 1, time_start: Date.today + 8.hours, time_end: Date.today + 24.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
+        @bookable.be_booked!(booker, amount: 1, time_start: Date.today + 8.hours, time_end: Date.today + 24.hours)
         amount = 2
         expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_truthy
         expect(@bookable.check_availability(amount: amount, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)).to be_truthy
@@ -329,7 +329,7 @@ describe 'Bookable model' do
 
       it 'should not be available if already booked (even though amount < capacity - overlapped amounts)' do
         booker = create(:booker)
-        @bookable.book!(booker, amount: 1)
+        @bookable.be_booked!(booker, amount: 1)
         (1..(@bookable.capacity + 1)).each do |amount|
           expect(@bookable.check_availability(amount: amount)).to be_falsy
           expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
