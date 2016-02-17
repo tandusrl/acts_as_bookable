@@ -34,6 +34,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pg'
   gem.add_development_dependency 'rspec-rails'
   gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'coveralls'
   gem.add_development_dependency 'factory_girl_rails'
   gem.add_development_dependency 'barrier'
   gem.add_development_dependency 'database_cleaner'
