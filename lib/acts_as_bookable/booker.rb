@@ -40,9 +40,6 @@ module ActsAsBookable
       # Example:
       #   @user.book!(@room)
       def book!(bookable, opts={})
-        # validates options
-        bookable.class.validate_booking_options!(opts) if bookable.class.bookable?
-
         # check availability
         bookable.check_availability!(opts) if bookable.class.bookable?
 

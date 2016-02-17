@@ -162,6 +162,9 @@ module ActsAsBookable::Bookable
       # Example:
       #   @room.check_availability!(from: Date.today, to: Date.tomorrow, amount: 2)
       def check_availability!(opts)
+        # validates options
+        self.validate_booking_options!(opts)
+
         # Capacity check (done first because it doesn't require additional queries)
         if self.booking_opts[:capacity_type] != :none
           # Amount > capacity
@@ -274,7 +277,7 @@ module ActsAsBookable::Bookable
       # @param opts The booking options
       #
       def validate_booking_options!(opts)
-        self.validate_booking_options!(opts)
+        self.class.validate_booking_options!(opts)
       end
 
       def booker?
