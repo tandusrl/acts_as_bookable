@@ -20,7 +20,7 @@ ActsAsBookable allows resources to be booked by users. It:
 ActsAsBookable works with ActiveRecord 3.2 onwards. You can add it to your Gemfile with:
 
 ```ruby
-gem acts_as_bookable
+gem 'acts_as_bookable'
 ```
 
 run `bundle install` to install it.
@@ -28,7 +28,7 @@ run `bundle install` to install it.
 #### Install and run migrations
 
 ```bash
-bundle exec rake acts_as_bookable:install:migrations
+bundle exec rake acts_as_bookable_engine:install:migrations
 bundle exec rake db:migrate
 ```
 
