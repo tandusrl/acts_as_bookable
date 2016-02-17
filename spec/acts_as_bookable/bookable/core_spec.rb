@@ -360,7 +360,7 @@ describe 'Bookable model' do
     describe 'self.initialize_acts_as_bookable_core' do
       describe '#set_options' do
         it 'preset options for room' do
-          ['room','event','show'].each do |p|
+          [:room,:event,:show].each do |p|
             Bookable.booking_opts = {preset: p}
             Bookable.initialize_acts_as_bookable_core
             expect(Bookable.booking_opts[:preset]).to eq p

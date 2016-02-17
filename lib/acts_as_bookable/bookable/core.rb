@@ -105,7 +105,7 @@ module ActsAsBookable::Bookable
           permitted_options = {
             time_type: [:range, :fixed, :none],
             capacity_type: [:open, :closed, :none],
-            preset: ['room','event','show'],
+            preset: [:room,:event,:show],
             bookable_across_occurrences: [true, false]
           }
           self.booking_opts.each_pair do |key, val|
@@ -118,21 +118,21 @@ module ActsAsBookable::Bookable
 
           case self.booking_opts[:preset]
           # Room preset
-          when 'room'
+          when :room
             defaults = {
               time_type: :range,      # time_start is check-in, time_end is check-out
               capacity_type: :closed,  # capacity is closed: after the first booking the room is not bookable anymore, even though the capacity has not been reached
               bookable_across_occurrences: true # a room is bookable across recurrences: if a recurrence is daily, a booker must be able to book from a date to another date, even though time_start and time_end falls in different occurrences of the schedule
             }
           # Event preset (e.g. a birthday party)
-          when 'event'
+          when :event
             defaults = {
               time_type: :none,       # time is ininfluent for booking an event.
               capacity_type: :open,    # capacity is open: after a booking the event is still bookable until capacity is reached.
               bookable_across_occurrences: false # an event is not bookable across recurrences
             }
           # Show preset (e.g. a movie)
-          when 'show'
+          when :show
             defaults = {
               time_type: :fixed,      # time is fixed: a user chooses the time of the show (the show may have a number of occurrences)
               capacity_type: :open,    # capacity is open: after a booking the show is still bookable until capacity is reached
