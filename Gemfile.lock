@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    acts_as_bookable (0.0.1)
+    acts_as_bookable (0.1.0)
       activerecord (>= 3.2, < 5)
-      railties
+      ice_cube_chosko (~> 0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -39,13 +39,19 @@ GEM
       rake
       thor (>= 0.14.0)
     arel (6.0.3)
+    awesome_print (1.6.1)
     barrier (1.0.2)
     builder (3.2.2)
-    byebug (8.2.1)
+    byebug (8.2.2)
     coderay (1.1.0)
     database_cleaner (1.5.1)
     diff-lcs (1.2.5)
     erubis (2.7.0)
+    factory_girl (4.5.0)
+      activesupport (>= 3.0.0)
+    factory_girl_rails (4.6.0)
+      factory_girl (~> 4.5.0)
+      railties (>= 3.0.0)
     ffi (1.9.10)
     formatador (0.2.5)
     guard (2.13.0)
@@ -63,10 +69,11 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     i18n (0.7.0)
+    ice_cube_chosko (0.1.0)
     json (1.8.3)
-    listen (3.0.5)
+    listen (3.0.6)
       rb-fsevent (>= 0.9.3)
-      rb-inotify (>= 0.9)
+      rb-inotify (>= 0.9.7)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
@@ -74,7 +81,7 @@ GEM
     mini_portile2 (2.0.0)
     minitest (5.8.4)
     mysql2 (0.3.20)
-    nenv (0.2.0)
+    nenv (0.3.0)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     notiffany (0.0.8)
@@ -85,8 +92,8 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    pry-rails (0.3.4)
-      pry (>= 0.9.10)
+    pry-nav (0.2.4)
+      pry (>= 0.9.10, < 0.11.0)
     rack (1.6.4)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -105,13 +112,13 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (10.5.0)
     rb-fsevent (0.9.7)
-    rb-inotify (0.9.5)
+    rb-inotify (0.9.7)
       ffi (>= 0.5.0)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
       rspec-mocks (~> 3.4.0)
-    rspec-core (3.4.1)
+    rspec-core (3.4.2)
       rspec-support (~> 3.4.0)
     rspec-expectations (3.4.0)
       diff-lcs (>= 1.2.0, < 2.0)
@@ -119,7 +126,7 @@ GEM
     rspec-mocks (3.4.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.4.0)
-    rspec-rails (3.4.0)
+    rspec-rails (3.4.2)
       actionpack (>= 3.0, < 4.3)
       activesupport (>= 3.0, < 4.3)
       railties (>= 3.0, < 4.3)
@@ -142,14 +149,16 @@ PLATFORMS
 DEPENDENCIES
   acts_as_bookable!
   appraisal
+  awesome_print
   barrier
   byebug
   database_cleaner
+  factory_girl_rails
   guard
   guard-rspec
   mysql2 (~> 0.3.7)
   pg
-  pry-rails
+  pry-nav
   rake
   rspec
   rspec-rails

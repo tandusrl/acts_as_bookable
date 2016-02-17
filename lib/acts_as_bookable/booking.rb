@@ -1,17 +1,36 @@
 module ActsAsBookable
-  #
+  ##
   # Booking model. Store in database bookings made by bookers on bookables
   #
   class Booking < ::ActiveRecord::Base
+    self.table_name = 'acts_as_bookable_bookings'
+
     belongs_to :bookable, polymorphic: true
     belongs_to :booker,   polymorphic: true
 
-    # scope :owned_by, ->(owner) { where(tagger: owner) }
-    # scope :not_owned, -> { where(tagger_id: nil, tagger_type: nil) }
-
     validates_presence_of :bookable
     validates_presence_of :booker
-    validate :bookable_must_be_bookable, :booker_must_be_booker
+    validate  :bookable_must_be_bookable,
+              :booker_must_be_booker
+
+    ##
+    # Retrieves overlapped bookings, given a bookable and some booking options
+    #
+    scope :overlapped, ->(bookable,opts) {
+      query = where(bookable_id: bookable.id)
+
+      # Time options
+      if(opts[:time].present?)
+        query = query.where(time: opts[:time].to_time)
+      end
+      if(opts[:time_start].present?)
+        query = query.where('time_end >= ?', opts[:time_start].to_time)
+      end
+      if(opts[:time_end].present?)
+        query = query.where('time_start < ?', opts[:time_end].to_time)
+      end
+      query
+    }
 
     private
       ##

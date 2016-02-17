@@ -5,3 +5,8 @@ en:
         booking:
           bookable_must_be_bookable: "cannot book a %{model} as it\'s not bookable"
           booker_must_be_booker: "a %{model} cannot book a resource, because %{model} is not a booker"
+        availability:
+          amount_gt_capacity: "amount cannot be greater than %{model} capacity"
+          already_booked: "the %{model} is fully booked"
+          unavailable_interval: "the %{model} is not available from %{time_start} to %{time_end}"
+          unavailable_time: "the %{model} is not available at %{time}"

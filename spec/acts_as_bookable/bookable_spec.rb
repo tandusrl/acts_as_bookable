@@ -2,24 +2,101 @@ require 'spec_helper'
 
 describe 'Bookable model' do
   before(:each) do
-    @bookable = Bookable.new
+    @bookable = build(:bookable)
   end
 
-  it 'should be valid with all required fields set' do
-    expect(@bookable).to be_valid
+  describe 'conditional validations' do
+    it 'should be valid with all required fields set' do
+      expect(@bookable).to be_valid
+    end
+
+    it 'should save a bookable' do
+      expect(@bookable.save).to be_truthy
+    end
+
+    describe 'when capacity is required' do
+      before(:each) do
+        Bookable.booking_opts[:capacity_type] = :closed
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should not validate with capacity < 0 if capacity is required' do
+        @bookable.capacity = -1
+        expect(@bookable.valid?).to be_falsy
+      end
+
+      it 'should not validate without capacity' do
+        @bookable.capacity = nil
+        expect(@bookable.valid?).to be_falsy
+      end
+    end
+
+    describe 'when capacity is not required' do
+      before(:each) do
+        Bookable.booking_opts[:capacity_type] = :none
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should validate with capacity < 0' do
+        @bookable.capacity = -1
+        expect(@bookable.valid?).to be_truthy
+      end
+
+      it 'should validate without capacity if it\'s not required' do
+        @bookable.capacity = nil
+        expect(@bookable.valid?).to be_truthy
+      end
+    end
+
+    describe 'when schedule is required' do
+      before(:each) do
+        Bookable.booking_opts[:time_type] = :range
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should not validate without schedule' do
+        @bookable.schedule = nil
+        expect(@bookable.valid?).to be_falsy
+      end
+    end
+
+    describe 'when schedule is not required' do
+      before(:each) do
+        Bookable.booking_opts[:time_type] = :none
+        Bookable.initialize_acts_as_bookable_core
+      end
+      after(:all) do
+        Bookable.booking_opts = {}
+        Bookable.initialize_acts_as_bookable_core
+      end
+
+      it 'should validate without schedule if it\'s not required' do
+        @bookable.schedule = nil
+        expect(@bookable.valid?).to be_truthy
+      end
+    end
   end
 
-  it 'should save a bookable' do
-    expect(@bookable.save).to be_truthy
-  end
 
   describe 'has_many :bookings' do
     before(:each) do
       @bookable.save!
-      booker1 = Booker.create(name: 'Booker 1')
-      booker2 = Booker.create(name: 'Booker 2')
-      booking1 = ActsAsBookable::Booking.create(booker: booker1, bookable: @bookable)
-      booking2 = ActsAsBookable::Booking.create(booker: booker1, bookable: @bookable)
+      booker1 = create(:booker, name: 'Booker 1')
+      booker2 = create(:booker, name: 'Booker 2')
+      booking1 = ActsAsBookable::Booking.create!(booker: booker1, bookable: @bookable)
+      booking2 = ActsAsBookable::Booking.create!(booker: booker1, bookable: @bookable)
       @bookable.reload
     end
 
@@ -35,62 +112,13 @@ describe 'Bookable model' do
     end
   end
 
-
-
-  # describe 'Booker Method Generation' do
-  #   before :each do
-  #     Generic.acts_as_booker
-  #     @booker = Generic.new()
-  #   end
-  #
-  #   it "should responde 'true' to booker?" do
-  #     expect(@booker.class).to be_booker
-  #   end
-  # end
-  #
-  # describe 'class configured as Booker' do
-  #   before(:each) do
-  #     @booker = Booker.new
-  #   end
-  #
-  #   it 'should add #booker? query method to the class-side' do
-  #     expect(Booker).to respond_to(:booker?)
-  #   end
-  #
-  #   it 'should return true from the class-side #booker?' do
-  #     expect(Booker.booker?).to be_truthy
-  #   end
-  #
-  #   it 'should return false from the base #booker?' do
-  #     expect(ActiveRecord::Base.booker?).to be_falsy
-  #   end
-  #
-  #   it 'should add #booker? query method to the singleton' do
-  #     expect(@booker).to respond_to(:booker?)
-  #   end
-  #
-  #   it 'should add #booker? query method to the instance-side' do
-  #     expect(@booker).to respond_to(:booker?)
-  #   end
-  #
-  #   it 'should add #booker? query method to the instance-side' do
-  #     expect(@booker.booker?).to be_truthy
-  #   end
-  #
-  #   # it 'should add #tag method on the instance-side' do
-  #   #   expect(@booker).to respond_to(:tag)
-  #   # end
-  #
-  #   # it 'should generate an association for #owned_taggings and #owned_tags' do
-  #   #   expect(@booker).to respond_to(:owned_taggings, :owned_tags)
-  #   # end
-  # end
-  #
-  # describe 'Reloading' do
-  #   it 'should save a model instantiated by Model.find' do
-  #     booker = Generic.create!(name: 'Booker')
-  #     found_booker = Generic.find(booker.id)
-  #     expect(found_booker.save).to eq true
-  #   end
-  # end
+  describe '#schedule' do
+    it 'allows for creation of a bookable with a IceCube schedule' do
+      schedule = IceCube::Schedule.new
+      # Every Monday,Tuesday and Friday
+      schedule.add_recurrence_rule IceCube::Rule.weekly.day(:monday, :tuesday, :friday)
+      @bookable.schedule = schedule
+      expect(@bookable.save).to be_truthy
+    end
+  end
 end

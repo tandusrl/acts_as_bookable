@@ -44,7 +44,7 @@ describe 'acts_as_bookable' do
 
   describe 'Reloading' do
     it 'should save a model instantiated by Model.find' do
-      bookable = Bookable.create!(name: 'Bookable')
+      bookable = create(:bookable)
       found_bookable = Bookable.find(bookable.id)
       expect(found_bookable.save).to eq true
     end
