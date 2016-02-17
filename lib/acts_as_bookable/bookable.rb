@@ -49,7 +49,7 @@ module ActsAsBookable
           end
 
           def capacity_is_set?
-            !capacity.nil?
+            capacity_required? && !capacity.nil?
           end
         end
       end
