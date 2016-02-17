@@ -45,9 +45,9 @@ describe 'Bookable model' do
         Bookable.initialize_acts_as_bookable_core
       end
 
-      it 'should not validate with capacity < 0' do
+      it 'should validate with capacity < 0' do
         @bookable.capacity = -1
-        expect(@bookable.valid?).to be_falsy
+        expect(@bookable.valid?).to be_truthy
       end
 
       it 'should validate without capacity if it\'s not required' do

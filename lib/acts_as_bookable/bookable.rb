@@ -34,7 +34,7 @@ module ActsAsBookable
 
           validates_presence_of :schedule, if: :schedule_required?
           validates_presence_of :capacity, if: :capacity_required?
-          validates_numericality_of :capacity, if: :capacity_is_set?, only_integer: true, greater_than_or_equal_to: 0
+          validates_numericality_of :capacity, if: :capacity_required?, only_integer: true, greater_than_or_equal_to: 0
 
           def self.bookable?
             true
@@ -46,10 +46,6 @@ module ActsAsBookable
 
           def capacity_required?
             self.booking_opts && self.booking_opts[:capacity_type] != :none
-          end
-
-          def capacity_is_set?
-            capacity_required? && !capacity.nil?
           end
         end
       end
