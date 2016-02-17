@@ -6,7 +6,7 @@ ActiveRecord::Schema.define version: 0 do
   # end
   # add_index 'tags', ['name'], name: 'index_tags_on_name', unique: true
   #
-  create_table :bookings, force: true do |t|
+  create_table :acts_as_bookable_bookings, force: true do |t|
     # t.references :tag
 
     # You should make sure that the column created is
