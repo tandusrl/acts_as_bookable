@@ -68,7 +68,7 @@ describe 'Bookable model' do
         begin
           @bookable.check_availability!({time_start: time, time_end: endtime})
         rescue ActsAsBookable::AvailabilityError => e
-          expect(e.message).to include "the Bookable is not available from #{time} to #{endtime}"
+          expect(e.message).to include "the Bookable is not available from #{time.to_time} to #{endtime.to_time}"
         end
       end
 
@@ -128,7 +128,7 @@ describe 'Bookable model' do
         begin
           @bookable.check_availability!({time_start: time, time_end: endtime})
         rescue ActsAsBookable::AvailabilityError => e
-          expect(e.message).to include "the Bookable is not available from #{time} to #{endtime}"
+          expect(e.message).to include "the Bookable is not available from #{time.to_time} to #{endtime.to_time}"
         end
       end
 

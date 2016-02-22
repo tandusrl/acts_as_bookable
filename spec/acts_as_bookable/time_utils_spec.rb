@@ -46,7 +46,7 @@ describe 'ActsAsBookable::TimeUtils' do
 
   describe '#interval_in_schedule?' do
     before :each do
-      @day0 = '2016-01-05'.to_date
+      @day0 = '2016-01-05'.to_date.to_time
       @schedule = IceCube::Schedule.new(@day0,duration: 1.day)
       @schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month(1,3,5,7)
     end
@@ -398,7 +398,7 @@ describe 'ActsAsBookable::TimeUtils' do
     #             |--4--|
     #                      |----9----|
     it 'correctly merges interval attributes handling dates and times' do
-      time0 = Date.today
+      time0 = Date.today.to_time
       time1 = time0 + 1
       time2 = time0 + 2
       time3 = time0 + 3
