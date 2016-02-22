@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    acts_as_bookable (0.1.0)
+    acts_as_bookable (0.1.1)
       activerecord (>= 3.2, < 5)
       ice_cube_chosko (~> 0.1.0)
 
@@ -178,21 +178,21 @@ PLATFORMS
 DEPENDENCIES
   acts_as_bookable!
   appraisal
-  awesome_print
-  barrier
+  awesome_print (~> 1.6)
+  barrier (~> 1.0)
   byebug
-  coveralls
-  database_cleaner
-  factory_girl_rails
+  coveralls (~> 0.8)
+  database_cleaner (~> 1.5)
+  factory_girl_rails (~> 4.6)
   guard
   guard-rspec
   mysql2 (~> 0.3.7)
-  pg
+  pg (~> 0.18)
   pry-nav
   rake
-  rspec
-  rspec-rails
-  sqlite3
+  rspec (~> 3.4)
+  rspec-rails (~> 3.4)
+  sqlite3 (~> 1.3)
 
 BUNDLED WITH
    1.11.2
