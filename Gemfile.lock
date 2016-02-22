@@ -190,8 +190,8 @@ DEPENDENCIES
   pg (~> 0.18)
   pry-nav
   rake
-  rspec (~> 3.4)
-  rspec-rails (~> 3.4)
+  rspec (~> 3)
+  rspec-rails (~> 3)
   sqlite3 (~> 1.3)
 
 BUNDLED WITH
