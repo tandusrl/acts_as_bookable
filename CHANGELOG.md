@@ -1,11 +1,14 @@
 # Change Log
 
-## [v0.1.1](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.1) (2016-02-22)
+## [v0.1.2](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.2) (2016-02-22)
+[Full Changelog](https://github.com/tandusrl/acts_as_bookable/compare/v0.1.1...v0.1.2)
 
 **Fixed bugs:**
 
+- Fix dependencies [\#11](https://github.com/tandusrl/acts_as_bookable/issues/11)
 - Fix build failing for some DBs [\#10](https://github.com/tandusrl/acts_as_bookable/issues/10)
 
+## [v0.1.1](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.1) (2016-02-22)
 [Full Changelog](https://github.com/tandusrl/acts_as_bookable/compare/v0.1.0...v0.1.1)
 
 ## [v0.1.0](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.0) (2016-02-17)
