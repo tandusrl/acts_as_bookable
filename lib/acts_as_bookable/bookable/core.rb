@@ -279,10 +279,6 @@ module ActsAsBookable::Bookable
       def validate_booking_options!(opts)
         self.class.validate_booking_options!(opts)
       end
-
-      def booker?
-        self.class.booker?
-      end
     end
   end
 end

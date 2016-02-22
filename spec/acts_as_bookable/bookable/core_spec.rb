@@ -472,14 +472,14 @@ describe 'Bookable model' do
           end
 
           it 'requires time_start as Time' do
-            @opts[:time_start] = nil
+            @opts.delete :time_start
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
             @opts[:time_start] = 'String'
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           end
 
           it 'requires time_end as Time' do
-            @opts[:time_end] = nil
+            @opts.delete :time_end
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
             @opts[:time_end] = 'String'
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
@@ -503,7 +503,7 @@ describe 'Bookable model' do
           end
 
           it 'requires date as Time' do
-            @opts[:time] = nil
+            @opts.delete :time
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
             @opts[:time] = 'String'
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
@@ -555,7 +555,7 @@ describe 'Bookable model' do
           end
 
           it 'requires :amount as integer' do
-            @opts[:amount] = nil
+            @opts.delete :amount
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           end
         end
@@ -572,7 +572,7 @@ describe 'Bookable model' do
           end
 
           it 'requires :amount as integer' do
-            @opts[:amount] = nil
+            @opts.delete :amount
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           end
         end

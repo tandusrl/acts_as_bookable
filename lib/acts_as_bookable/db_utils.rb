@@ -1,5 +1,6 @@
 module ActsAsBookable
   module DBUtils
+    # :nocov:
     class << self
       def connection
         ActsAsBookable::Booking.connection
@@ -48,5 +49,6 @@ module ActsAsBookable
         str.gsub(/[!%_]/) { |x| '!' + x }
       end
     end
+    # :nocov:
   end
 end

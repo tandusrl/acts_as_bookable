@@ -165,23 +165,23 @@ describe 'ActsAsBookable::TimeUtils' do
         {time_start: @time, time_end: @time + 1.hour},
         {time_start: @time}
       ]
-      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(intervals) }.to raise_error ArgumentError
       intervals = [
         {time_start: @time, time_end: @time + 1.hour},
         {time_end: @time}
       ]
-      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(intervals) }.to raise_error ArgumentError
     end
 
     it 'returns ArgumentError if time_start or time_end is not a Time or Date' do
       intervals = [
         {time_start: @time, time_end: 1}
       ]
-      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(intervals) }.to raise_error ArgumentError
       intervals = [
         {time_start: 2, time_end: @time + 1.hour}
       ]
-      expect{ ActsAsBookable::TimeUtils.subintervals(1) }.to raise_error ArgumentError
+      expect{ ActsAsBookable::TimeUtils.subintervals(intervals) }.to raise_error ArgumentError
     end
 
     it 'returns empty array if input is an empty array' do
