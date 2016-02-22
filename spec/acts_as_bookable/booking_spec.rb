@@ -70,9 +70,9 @@ describe 'Booking model' do
         booking3 = ActsAsBookable::Booking.create!(time_start: Time.now - 10.days, time_end: Time.now - 9.days, time: nil, bookable: @bookable, booker: @booker)
         opts = {}
         expect(ActsAsBookable::Booking.overlapped(@bookable,opts).count).to eq 3
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[0].id).to eq booking1.id
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[1].id).to eq booking2.id
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[2].id).to eq booking3.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[0].id).to eq booking1.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[1].id).to eq booking2.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[2].id).to eq booking3.id
       end
     end
 
@@ -92,8 +92,8 @@ describe 'Booking model' do
         booking3 = ActsAsBookable::Booking.create!(time_start: nil, time_end: nil, time: time + 1.hour, bookable: @bookable, booker: @booker)
         opts = {time: time}
         expect(ActsAsBookable::Booking.overlapped(@bookable,opts).count).to eq 2
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[0].id).to eq booking1.id
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[1].id).to eq booking2.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[0].id).to eq booking1.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[1].id).to eq booking2.id
       end
 
       it "returns no overlapped booking if time is wrong" do
@@ -122,8 +122,8 @@ describe 'Booking model' do
         booking3 = ActsAsBookable::Booking.create!(time_start: time_start-10.days, time_end: time_end-10.days, time: nil, bookable: @bookable, booker: @booker)
         opts = { time_start: time_start, time_end: time_end }
         expect(ActsAsBookable::Booking.overlapped(@bookable,opts).count).to eq 2
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[0].id).to eq booking1.id
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[1].id).to eq booking2.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[0].id).to eq booking1.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[1].id).to eq booking2.id
       end
 
       it "doesn't return any booking if time is wrong" do
@@ -162,9 +162,9 @@ describe 'Booking model' do
         booking4 = ActsAsBookable::Booking.create!(time_start: time_start+10.days, time_end: time_end+10.days, time: nil, bookable: @bookable, booker: @booker)
         opts = { time_start: time_start, time_end: time_end }
         expect(ActsAsBookable::Booking.overlapped(@bookable,opts).count).to eq 3
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[0].id).to eq booking1.id
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[1].id).to eq booking2.id
-        expect(ActsAsBookable::Booking.overlapped(@bookable,opts)[2].id).to eq booking3.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[0].id).to eq booking1.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[1].id).to eq booking2.id
+        expect(ActsAsBookable::Booking.overlapped(@bookable,opts).order(:id)[2].id).to eq booking3.id
       end
 
       describe "should handle limit cases" do

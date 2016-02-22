@@ -30,6 +30,19 @@ module ActsAsBookable
         using_postgresql? ? 'ILIKE' : 'LIKE'
       end
 
+      ##
+      # Compare times according to the DB
+      #
+      def time_comparison (query, field, operator, time)
+        if using_postgresql?
+          query.where("#{field}::timestamp #{operator} ?::timestamp", time.to_time.utc.to_s)
+        elsif using_sqlite?
+          query.where("Datetime(#{field}) #{operator} Datetime('#{time.to_time.utc.iso8601}')")
+        else
+          query.where("#{field} #{operator} ?", time.to_time)
+        end
+      end
+
       # escape _ and % characters in strings, since these are wildcards in SQL.
       def escape_like(str)
         str.gsub(/[!%_]/) { |x| '!' + x }

@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 begin
   require 'pry-nav'
 rescue LoadError

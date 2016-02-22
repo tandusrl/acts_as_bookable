@@ -21,13 +21,13 @@ module ActsAsBookable
 
       # Time options
       if(opts[:time].present?)
-        query = query.where(time: opts[:time].to_time)
+        query = DBUtils.time_comparison(query,'time','=',opts[:time])
       end
       if(opts[:time_start].present?)
-        query = query.where('time_end >= ?', opts[:time_start].to_time)
+        query = DBUtils.time_comparison(query,'time_end', '>=', opts[:time_start])
       end
       if(opts[:time_end].present?)
-        query = query.where('time_start < ?', opts[:time_end].to_time)
+        query = DBUtils.time_comparison(query,'time_start', '<', opts[:time_end])
       end
       query
     }

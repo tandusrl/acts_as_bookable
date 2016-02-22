@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.email       = ["ruben.caliandro@gmail.com"]
   gem.homepage    = "https://github.com/tandusrl/acts_as_bookable"
   gem.summary     = "The reservation engine for Rails applications that allows resources to be booked"
-  gem.description = "The reservation engine for Rails applications that allows resources to be booked"
+  gem.description = "ActsAsBookable is a reservation engine for Rails applications that allows resources to be booked. You can define availability rules for bookable models and set costraints to implement different types of booking (hotels, theaters, meeting rooms...)"
   gem.licenses    = ["MIT"]
   gem.platform    = Gem::Platform::RUBY
 
@@ -29,13 +29,14 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'ice_cube_chosko', '~> 0.1.0'
   gem.add_runtime_dependency 'activerecord', ['>= 3.2', '< 5']
 
-  gem.add_development_dependency 'sqlite3'
+  gem.add_development_dependency 'sqlite3', '~> 1.3'
   gem.add_development_dependency 'mysql2', '~> 0.3.7'
-  gem.add_development_dependency 'pg'
-  gem.add_development_dependency 'rspec-rails'
-  gem.add_development_dependency 'rspec'
-  gem.add_development_dependency 'factory_girl_rails'
-  gem.add_development_dependency 'barrier'
-  gem.add_development_dependency 'database_cleaner'
-  gem.add_development_dependency 'awesome_print'
+  gem.add_development_dependency 'pg', '~> 0.18'
+  gem.add_development_dependency 'rspec-rails', '~> 3.4'
+  gem.add_development_dependency 'rspec', '~> 3.4'
+  gem.add_development_dependency 'coveralls', '~> 0.8'
+  gem.add_development_dependency 'factory_girl_rails', '~> 4.6'
+  gem.add_development_dependency 'barrier', '~> 1.0'
+  gem.add_development_dependency 'database_cleaner', '~>1.5'
+  gem.add_development_dependency 'awesome_print', '~>1.6'
 end
