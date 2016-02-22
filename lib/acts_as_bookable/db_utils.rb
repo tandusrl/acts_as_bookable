@@ -35,7 +35,7 @@ module ActsAsBookable
       #
       def time_comparison (query, field, operator, time)
         if using_postgresql?
-          query.where("#{field} #{operator} ?", "#{time.to_time.to_s}::timestamp")
+          query.where("#{field}::timestamp #{operator} ?::timestamp", time.to_time.utc.to_s)
         elsif using_sqlite?
           query.where("Datetime(#{field}) #{operator} Datetime('#{time.to_time.utc.iso8601}')")
         else

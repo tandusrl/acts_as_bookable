@@ -10,3 +10,4 @@ tmp
 *.gem
 *.lock
 coverage
+docker-compose.yml
