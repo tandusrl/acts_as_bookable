@@ -120,5 +120,50 @@ describe 'Bookable model' do
       @bookable.schedule = schedule
       expect(@bookable.save).to be_truthy
     end
+
+    describe 'serialization' do
+      it 'should serialize an empty schedule' do
+        schedule = IceCube::Schedule.new
+        original_hash = schedule.to_hash
+        @bookable.schedule = schedule
+        @bookable.save!
+        @bookable.reload
+        expect(original_hash).to eq @bookable.schedule.to_hash
+      end
+
+      it 'should serialize a schedule with rules' do
+        schedule = IceCube::Schedule.new
+        schedule.add_recurrence_rule IceCube::Rule.weekly.day(:monday, :tuesday, :friday)
+        schedule.add_recurrence_rule IceCube::Rule.hourly
+        original_hash = schedule.to_hash
+        @bookable.schedule = schedule
+        @bookable.save!
+        @bookable.reload
+        expect(original_hash).to eq @bookable.schedule.to_hash
+      end
+
+      it 'should serialize a schedule with duration' do
+        schedule = IceCube::Schedule.new Time.now, duration: 1.hour
+        schedule.add_recurrence_rule IceCube::Rule.weekly.day(:monday, :tuesday, :friday)
+        schedule.add_recurrence_rule IceCube::Rule.hourly
+        original_hash = schedule.to_hash
+        @bookable.schedule = schedule
+        @bookable.save!
+        @bookable.reload
+        expect(original_hash).to eq @bookable.schedule.to_hash
+      end
+
+      it 'should serialize a schedule with overridden duration in rules' do
+        schedule = IceCube::Schedule.new Time.now, duration: 1.hour
+        schedule.add_recurrence_rule IceCube::Rule.weekly.day(:monday, :tuesday, :friday)
+        schedule.add_recurrence_rule IceCube::Rule.hourly
+        schedule.add_recurrence_rule IceCube::Rule.weekly.day(:saturday).override_duration(3.hours)
+        original_hash = schedule.to_hash
+        @bookable.schedule = schedule
+        @bookable.save!
+        @bookable.reload
+        expect(original_hash).to eq @bookable.schedule.to_hash
+      end
+    end
   end
 end

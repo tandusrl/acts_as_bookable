@@ -114,8 +114,12 @@ describe 'Bookable model' do
 
         describe 'overriding schedules durations' do
           before(:each) do
+            rule = IceCube::Rule.monthly.day_of_month([-1,-2])
+            rule = rule.override_duration(2.hours)
+
             @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([-1,-2]).override_duration(2.hours)
             @bookable.save!
+            @bookable.reload
             @time_start = '2016-01-30'.to_date
             @time_end = @time_start + 2.hours - 1.second
             @another_time = '2016-01-31'.to_date
