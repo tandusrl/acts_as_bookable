@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     acts_as_bookable (0.1.2)
-      activerecord (>= 3.2)
+      activerecord (>= 3.2, <= 5.0.0.1)
       ice_cube_chosko (~> 0.1.0)
 
 GEM
