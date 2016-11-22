@@ -2,8 +2,8 @@
 
 source "https://rubygems.org"
 
-gem "railties", :github => "rails/rails", :branch => "master"
-gem "activerecord", :github => "rails/rails", :branch => "master"
+gem "railties", :github => "rails/rails", :branch => "5-0-stable"
+gem "activerecord", :github => "rails/rails", :branch => "5-0-stable"
 
 group :local_development do
   gem "guard"
