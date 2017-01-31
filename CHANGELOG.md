@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.1.4](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.4) (2017-01-31)
+[Full Changelog](https://github.com/tandusrl/acts_as_bookable/compare/v0.1.3...v0.1.4)
+
+**Closed issues:**
+
+- Not compatible with Rails 5/activerecord [\#14](https://github.com/tandusrl/acts_as_bookable/issues/14)
+
+## [v0.1.3](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.3) (2016-11-22)
+[Full Changelog](https://github.com/tandusrl/acts_as_bookable/compare/v0.1.2...v0.1.3)
+
+- @bookable.schedule method missing [\#18](https://github.com/tandusrl/acts_as_bookable/issues/18)
+- what data does @user.bookings return? [\#17](https://github.com/tandusrl/acts_as_bookable/issues/17)
+
 ## [v0.1.2](https://github.com/tandusrl/acts_as_bookable/tree/v0.1.2) (2016-02-22)
 [Full Changelog](https://github.com/tandusrl/acts_as_bookable/compare/v0.1.1...v0.1.2)
 
