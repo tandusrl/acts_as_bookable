@@ -97,6 +97,17 @@ describe 'Bookable model' do
           expect(e.message).to include "the Bookable is not available from #{time} to #{endtime}"
         end
       end
+      
+      it 'should work with issue #20 use case' do
+        @bookable = Bookable.new()
+        @bookable.schedule = IceCube::Schedule.new(Time.now.beginning_of_day + 8.hours, duration: 1.hour)
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.daily.hour_of_day(9,10,11,12,13,14,15,16)
+        @bookable.save!
+        from = Time.now.beginning_of_day + 10.hours
+        to = from + 1.hour - 1.second
+        expect(@bookable.check_availability(time_start: from, time_end: to)).to be_truthy
+        expect(@bookable.check_availability!(time_start: from, time_end: to)).to be_truthy
+      end
     end
 
     describe 'with time_type: :range and with bookable_across_occurrences: true' do
@@ -175,6 +186,22 @@ describe 'Bookable model' do
         expect(@bookable.check_availability(time: time)).to be_truthy
         expect(@bookable.check_availability!(time: time)).to be_truthy
       end
+      
+      it 'should be available in fixed dates' do
+        @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date))
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3,8])
+        @bookable.save!
+        
+        time = '2016-01-01'.to_date
+        expect(@bookable.check_availability(time: time)).to be_truthy
+        expect(@bookable.check_availability!(time: time)).to be_truthy
+        time = '2016-01-03'.to_date
+        expect(@bookable.check_availability(time: time)).to be_truthy
+        expect(@bookable.check_availability!(time: time)).to be_truthy
+        time = '2016-01-08'.to_date
+        expect(@bookable.check_availability(time: time)).to be_truthy
+        expect(@bookable.check_availability!(time: time)).to be_truthy
+      end
 
       it 'should not be available in not bookable day' do
         time = '2016-01-02'.to_date
@@ -208,6 +235,16 @@ describe 'Bookable model' do
         rescue ActsAsBookable::AvailabilityError => e
           expect(e.message).to include "the Bookable is not available at #{time}"
         end
+      end
+      
+      it 'should work with #16 issue' do
+        @bookable.schedule = IceCube::Schedule.new
+        # This show is available every day at 6PM and 10PM
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.daily.hour_of_day(18,22)
+        @bookable.save!
+        time_ok = Date.today + 18.hours
+        expect(@bookable.check_availability(time: time_ok)).to be_truthy
+        expect(@bookable.check_availability!(time: time_ok)).to be_truthy
       end
     end
 

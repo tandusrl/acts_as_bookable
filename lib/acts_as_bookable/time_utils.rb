@@ -29,7 +29,7 @@ module ActsAsBookable
         return false if(!time_in_schedule?(schedule,interval_start) || !time_in_schedule?(schedule,interval_end))
 
         # Check if both interval_start and interval_end falls within the SAME occurrence
-        between = schedule.occurrences_between(interval_start, interval_end, true)
+        between = schedule.occurrences_between(interval_start, interval_end, { spans: true })
         contains = false
         between.each do |oc|
           oc_end = oc + schedule.duration
