@@ -1,10 +1,11 @@
 # ActsAsBookable
 
 [![Gem Version](https://badge.fury.io/rb/acts_as_bookable.svg)](http://badge.fury.io/rb/acts_as_bookable)
-[![Build Status](https://secure.travis-ci.org/tandusrl/acts_as_bookable.png)](http://travis-ci.org/tandusrl/acts_as_bookable)
-[![Code Climate](https://codeclimate.com/github/tandusrl/acts_as_bookable.png)](https://codeclimate.com/github/tandusrl/acts_as_bookable)
-[![Coverage Status](https://coveralls.io/repos/github/tandusrl/acts_as_bookable/badge.svg?branch=master)](https://coveralls.io/github/tandusrl/acts_as_bookable?branch=master)
-[![Inline docs](http://inch-ci.org/github/tandusrl/acts_as_bookable.png)](http://inch-ci.org/github/tandusrl/acts_as_bookable)
+
+[![Build Status](https://travis-ci.com/aromaron/acts_as_bookable.svg?branch=master)](https://travis-ci.com/aromaron/acts_as_bookable)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9cbb817caefcf0d4ca96/maintainability)](https://codeclimate.com/github/aromaron/acts_as_bookable/maintainability)
+[![Coverage Status](https://coveralls.io/repos/github/aromaron/acts_as_bookable/badge.svg?branch=master)](https://coveralls.io/github/aromaron/acts_as_bookable?branch=master)
+[![Inline docs](http://inch-ci.org/github/aromaron/acts_as_bookable.svg?branch=master)](http://inch-ci.org/github/aromaron/acts_as_bookable)
 
 ActsAsBookable allows resources to be booked by users. It:
 
@@ -18,7 +19,7 @@ ActsAsBookable allows resources to be booked by users. It:
 
 #### Include the gem
 
-ActsAsBookable works with ActiveRecord 3.2 onwards. You can add it to your Gemfile with:
+ActsAsBookable works with ActiveRecord 3.2 onwards and Versioned migrations in Rails > 5. You can add it to your Gemfile with:
 
 ```ruby
 gem 'acts_as_bookable'
@@ -29,7 +30,7 @@ run `bundle install` to install it.
 #### Install and run migrations
 
 ```bash
-bundle exec rake acts_as_bookable_engine:install:migrations
+bundle exec rails generate acts_as_bookable:install
 bundle exec rake db:migrate
 ```
 

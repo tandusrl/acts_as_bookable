@@ -4,7 +4,8 @@
 
 source 'https://rubygems.org'
 
-gem 'activerecord', github: 'rails/rails', branch: '4-1-stable'
+gem 'activerecord', github: 'rails/rails', branch: '5-1-stable'
+gem 'railties', github: 'rails/rails', branch: '5-1-stable'
 
 group :local_development do
   gem 'appraisal'

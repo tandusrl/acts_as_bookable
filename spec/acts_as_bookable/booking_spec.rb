@@ -204,8 +204,8 @@ describe 'Booking model' do
 
       describe "should convert dates to times" do
         before :each do
-          @time_start = Date.today
-          @time_end = Date.tomorrow
+          @time_start = Date.today.to_time
+          @time_end = Date.tomorrow.to_time
 
           @time_before_start = @time_start - 1.second
           @time_after_start = @time_start + 1.second
@@ -218,22 +218,22 @@ describe 'Booking model' do
         it "excludes intervals with end before time_start and start after time_end" do
           booking1 = ActsAsBookable::Booking.create!(time_start: @time_start - 5.hours, time_end: @time_before_start, time: nil, bookable: @bookable, booker: @booker)
           booking2 = ActsAsBookable::Booking.create!(time_start: @time_after_end, time_end: @time_end + 5.hours, time: nil, bookable: @bookable, booker: @booker)
-          expect(ActsAsBookable::Booking.overlapped(@bookable,@opts).count).to eq 0
+          expect(ActsAsBookable::Booking.overlapped(@bookable, @opts).count).to eq 0
         end
 
         it "excludes intervals with start matching exactly with time_end" do
           booking1 = ActsAsBookable::Booking.create!(time_start: @time_end, time_end: @time_end + 2.hours, time: nil, bookable: @bookable, booker: @booker)
-          expect(ActsAsBookable::Booking.overlapped(@bookable,@opts).count).to eq 0
+          expect(ActsAsBookable::Booking.overlapped(@bookable, @opts).count).to eq 0
         end
 
         it "includes intervals with end after time_start" do
           booking1 = ActsAsBookable::Booking.create!(time_start: @time_start - 5.hours, time_end: @time_after_start, time: nil, bookable: @bookable, booker: @booker)
-          expect(ActsAsBookable::Booking.overlapped(@bookable,@opts).count).to eq 1
+          expect(ActsAsBookable::Booking.overlapped(@bookable, @opts).count).to eq 1
         end
 
         it "includes intervals with end exactly at time_start" do
           booking1 = ActsAsBookable::Booking.create!(time_start: @time_start - 5.hours, time_end: @time_start, time: nil, bookable: @bookable, booker: @booker)
-          expect(ActsAsBookable::Booking.overlapped(@bookable,@opts).count).to eq 1
+          expect(ActsAsBookable::Booking.overlapped(@bookable ,@opts).count).to eq 1
         end
       end
     end

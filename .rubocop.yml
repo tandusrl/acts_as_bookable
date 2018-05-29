@@ -1,0 +1,34 @@
+Rails:
+  Enabled: true
+
+Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 150
+
+Metrics/MethodLength: 
+  Max: 30
+
+AllCops:
+  TargetRubyVersion: 2.5
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'spec/**/*'
+    - 'lib/generators/acts_as_bookable/**'
+    
+Metrics/AbcSize:
+  Max: 18
+
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+Lint/MissingCopEnableDirective:
+  Enabled: false
+
+Rails/LexicallyScopedActionFilter:
+  Enabled: false

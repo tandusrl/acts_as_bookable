@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
 # Declare your gem's dependencies in acts_as_bookable.gemspec.
@@ -12,9 +14,9 @@ gemspec
 
 # To use a debugger
 group :local_development do
+  gem 'appraisal'
+  gem 'byebug', platform: :mri_21
   gem 'guard'
   gem 'guard-rspec'
-  gem 'appraisal'
-  gem 'byebug' , platform: :mri_21
   gem 'pry-nav'
 end
