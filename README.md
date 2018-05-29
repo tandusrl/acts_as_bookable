@@ -19,7 +19,7 @@ ActsAsBookable allows resources to be booked by users. It:
 
 #### Include the gem
 
-ActsAsBookable works with ActiveRecord 3.2 onwards and Versioned migrations in Rails > 5. You can add it to your Gemfile with:
+ActsAsBookable works with ActiveRecord 5.2. You can add it to your Gemfile with:
 
 ```ruby
 gem 'acts_as_bookable'
