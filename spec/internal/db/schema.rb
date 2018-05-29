@@ -14,7 +14,6 @@ ActiveRecord::Schema.define version: 0 do
     t.column :name, :string
     t.column :schedule, :text
     t.column :capacity, :integer
-    t.column :ammount, :integer
   end
 
   create_table :rooms, force: true do |t|
