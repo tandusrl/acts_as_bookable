@@ -33,6 +33,17 @@ describe 'Bookable model' do
         @bookable.capacity = nil
         expect(@bookable.valid?).to be_falsy
       end
+
+      it 'should not validate without capacity' do
+        @bookable.capacity = nil
+        expect(@bookable.valid?).to be_falsy
+      end
+
+      it 'should accept a custom capacity attribute' do
+        @bookable.ammount = 2
+        Bookable.booking_opts[:capacity_as] = :ammount
+        expect(@bookable.valid?).to be_truthy
+      end
     end
 
     describe 'when capacity is not required' do

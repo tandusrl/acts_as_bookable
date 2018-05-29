@@ -26,7 +26,7 @@ Gem::Specification.new do |gem|
 
   gem.post_install_message = File.read('UPGRADING.md') if File.exist?('UPGRADING.md')
 
-  gem.add_dependency 'ice_cube_chosko'
+  gem.add_dependency 'ice_cube'
   gem.add_runtime_dependency 'activerecord', ['>= 3.2', '<= 5.2']
 
   gem.add_development_dependency 'rails'
