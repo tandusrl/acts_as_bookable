@@ -14,7 +14,7 @@ I18n.enforce_available_locales = true
 require 'rails'
 require 'barrier'
 require 'database_cleaner'
-require 'factory_girl_rails'
+require 'factory_bot_rails'
 require 'awesome_print'
 
 ENGINE_RAILS_ROOT=File.join(File.dirname(__FILE__), '../')

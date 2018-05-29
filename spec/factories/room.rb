@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :room, class: 'Room' do
     name 'Room name'
     capacity 4

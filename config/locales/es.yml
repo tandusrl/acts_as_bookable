@@ -1,0 +1,12 @@
+es-MX:
+  acts_as_bookable:
+    errors:
+      messages:
+        booking:
+          bookable_must_be_bookable: "No se puede reservar %{model} ya que no es reservable"
+          booker_must_be_booker: "%{model} no puede reservar un recurso, porquue %{model} no es un agente de reservas"
+        availability:
+          amount_gt_capacity: "cantidad no puede ser mayor que la capacidad de %{model}"
+          already_booked: "%{model} está totalmente reservado"
+          unavailable_interval: "%{model} no está disponible desde %{time_start} hasta %{time_end}"
+          unavailable_time: "%{model} no está disponible a %{time}"
