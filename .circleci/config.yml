@@ -1,0 +1,83 @@
+# Ruby CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-ruby/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+       - image: circleci/ruby:2.3.7
+         environment:
+          - DATABASE_URL: postgres://postgres:postgres@localhost:5432
+       - image: postgres:alpine
+         environment:
+           - POSTGRES_USER: postgres
+           - POSTGRES_PASSWORD: postgres
+           - POSTGRES_DB: acts_as_bookable_test
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "Gemfile.lock" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: Download cc-test-reporter
+          command: |
+            mkdir -p tmp/
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
+            chmod +x ./tmp/cc-test-reporter
+
+      - run: mv .circleci/database.ci.yml config/database.yml
+
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+
+      # # Database setup
+      # - run: bundle exec rake db:create
+      # - run: bundle exec rake db:schema:load
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            mkdir /tmp/test-results
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+
+            bundle exec rspec --format progress \
+                            --format RspecJunitFormatter \
+                            --out /tmp/test-results/rspec.xml \
+                            --format progress \
+                            $TEST_FILES
+      - run:
+          name: run coverage reporting
+          command: |
+            ./tmp/cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.json
+
+      # collect reports
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: test-results
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+
+      - run:
+          name: upload coverage
+          command: |
+            ./tmp/cc-test-reporter upload-coverage -i coverage/codeclimate.json \
+            -r b4de0cf5f915f7cfa2dda19a97c8ffff632918666bb11f0ce78b73276bac6b63
