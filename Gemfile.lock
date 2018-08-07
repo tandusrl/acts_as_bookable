@@ -2,7 +2,8 @@ PATH
   remote: .
   specs:
     acts_as_bookable (0.1.2)
-      activerecord (>= 3.2, < 5)
+      activerecord (>= 3.2, < 6)
+      activesupport (>= 3.2, < 6)
       ice_cube_chosko (~> 0.2.0)
 
 GEM
@@ -38,7 +39,7 @@ GEM
       bundler
       rake
       thor (>= 0.14.0)
-    arel (6.0.3)
+    arel (6.0.4)
     awesome_print (1.6.1)
     barrier (1.0.2)
     builder (3.2.2)
@@ -93,7 +94,7 @@ GEM
     mime-types (2.99)
     mini_portile2 (2.0.0)
     minitest (5.8.4)
-    mysql2 (0.3.20)
+    mysql2 (0.5.2)
     nenv (0.3.0)
     netrc (0.11.0)
     nokogiri (1.6.7.2)
@@ -153,6 +154,8 @@ GEM
       rspec-mocks (~> 3.4.0)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
+    rspec_junit_formatter (0.4.1)
+      rspec-core (>= 2, < 4, != 2.12.0)
     shellany (0.0.1)
     simplecov (0.11.2)
       docile (~> 1.1.0)
@@ -186,13 +189,14 @@ DEPENDENCIES
   factory_girl_rails (~> 4.6)
   guard
   guard-rspec
-  mysql2 (~> 0.3.7)
+  mysql2 (~> 0.5.2)
   pg (~> 0.18)
   pry-nav
   rake
   rspec (~> 3)
   rspec-rails (~> 3)
+  rspec_junit_formatter
   sqlite3 (~> 1.3)
 
 BUNDLED WITH
-   1.11.2
+   1.16.3
