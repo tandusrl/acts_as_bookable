@@ -35,6 +35,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pg', '~> 0.18'
   gem.add_development_dependency 'rspec-rails', '~> 3'
   gem.add_development_dependency 'rspec', '~> 3'
+  gem.add_development_dependency 'rspec_junit_formatter'
   gem.add_development_dependency 'coveralls', '~> 0.8'
   gem.add_development_dependency 'factory_girl_rails', '~> 4.6'
   gem.add_development_dependency 'barrier', '~> 1.0'
