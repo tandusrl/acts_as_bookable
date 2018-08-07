@@ -38,467 +38,308 @@ describe 'Bookable model' do
           expect(@bookable.check_availability!({})).to be_truthy
         end
       end
+    end
 
-      describe 'with time_type: :range' do
-        before(:each) do
-          Bookable.booking_opts = {
-            time_type: :range,
-            capacity_type: :none
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date, duration: 1.day))
-          ## bookable the first and third day of the month
-          @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3])
-          @bookable.save!
-          @time_start = '2016-01-01'.to_date
-          @time_end = @time_start.end_of_day
-          @another_time = '2016-01-03'.to_date
-        end
+    describe 'with time_type: :range' do
+      before(:each) do
+        Bookable.booking_opts = {
+          time_type: :range,
+          capacity_type: :none
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date, duration: 1.day))
+        ## bookable the first and third day of the month
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3])
+        @bookable.save!
+      end
 
-        it 'should be available in bookable times' do
-          expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-        end
+      it 'should be available in bookable times' do
+        time = '2016-01-01'.to_date
+        endtime = time + 10.minutes
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+      end
 
-        it 'should not be available in not bookable times' do
-          @time_start -= 1.second
-          @time_end += 1.second
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
-
-        it 'should not be available when end time is outside availability' do
-          @time_end += 1.second
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
-
-        it 'should not be available when start time is outside availability' do
-          @time_start -= 1.second
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
-
-        it 'should be bookable within a bookable time' do
-          @time_start += 1.second
-          @time_end -= 1.second
-          expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-        end
-
-        it 'should not be available when time_start is available, time_end is available but the availability is splitted in between' do
-          @time_end = @another_time
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
-
-        describe 'overriding schedules durations' do
-          before(:each) do
-            @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([-1,-2]).override_duration(2.hours)
-            @bookable.save!
-            @time_start = '2016-01-30'.to_date
-            @time_end = @time_start + 2.hours - 1.second
-            @another_time = '2016-01-31'.to_date
-          end
-
-          it 'should be available in bookable times' do
-            expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-          end
-
-          it 'should not be available in not bookable times' do
-            @time_start -= 1.second
-            @time_end += 1.second
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
-
-          it 'should not be available when end time is outside availability' do
-            @time_end += 1.second
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
-
-          it 'should not be available when start time is outside availability' do
-            @time_start -= 1.second
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
-
-          it 'should be bookable within a bookable time' do
-            @time_start += 1.second
-            @time_end -= 1.second
-            expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-          end
-
-          it 'should not be available when time_start is available, time_end is available but the availability is splitted in between' do
-            @time_end = @another_time
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
+      it 'should not be available in not bookable times' do
+        time = '2016-01-02'.to_date
+        endtime = '2016-01-04'.to_date
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_falsy
+        expect{ @bookable.check_availability!({time_start: time, time_end: endtime}) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!({time_start: time, time_end: endtime})
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include "the Bookable is not available from #{time.to_time} to #{endtime.to_time}"
         end
       end
 
-      describe 'with time_type: :range and bookable_across_occurrences: true' do
-        before(:each) do
-          Bookable.booking_opts = {
-            time_type: :range,
-            capacity_type: :none,
-            bookable_across_occurrences: true
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date, duration: 1.day))
-          ## bookable the first and third day of the month
-          @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3])
-          @bookable.save!
-          @time_start = '2016-01-01'.to_date
-          @time_end = @time_start.end_of_day
-          @another_time = '2016-01-03'.to_date
+      it 'should be bookable within a bookable time' do
+        time = '2016-01-01'.to_date + 1.minute
+        endtime = '2016-01-02'.to_date - 1.minute
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+      end
+
+      it 'should be bookable within a bookable time' do
+        time = '2016-01-01'.to_date + 1.minute
+        endtime = '2016-01-02'.to_date - 1.minute
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+      end
+
+      it 'should not be available when time_start is available, time_end is available but the availability is splitted in between' do
+        time = '2016-01-01'.to_date + 1.minute
+        endtime = '2016-01-03'.to_date + 1.minute
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_falsy
+        expect{ @bookable.check_availability!({time_start: time, time_end: endtime}) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!({time_start: time, time_end: endtime})
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include "the Bookable is not available from #{time} to #{endtime}"
         end
+      end
+    end
 
-        it 'should be available in bookable times' do
-          expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-        end
+    describe 'with time_type: :range and with bookable_across_occurrences: true' do
+      before(:each) do
+        Bookable.booking_opts = {
+          time_type: :range,
+          capacity_type: :none,
+          bookable_across_occurrences: true
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date, duration: 1.day))
+        ## bookable the first and third day of the month
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3])
+        @bookable.save!
+      end
 
-        it 'should not be available in not bookable times' do
-          @time_start -= 1.second
-          @time_end += 1.second
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
+      it 'should be available in bookable times' do
+        time = '2016-01-01'.to_date
+        endtime = time + 10.minutes
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+      end
 
-        it 'should not be available when end time is outside availability' do
-          @time_end += 1.second
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
-
-        it 'should not be available when start time is outside availability' do
-          @time_start -= 1.second
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-          expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-          end
-        end
-
-        it 'should be bookable within a bookable time' do
-          @time_start += 1.second
-          @time_end -= 1.second
-          expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-        end
-
-        it 'should be available when time_start is available, time_end is available but the availability is splitted in between' do
-          @time_end = @another_time
-          expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-          expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-        end
-
-        describe 'overriding schedules durations' do
-          before(:each) do
-            @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([-1,-2]).override_duration(2.hours)
-            @bookable.save!
-            @time_start = '2016-01-30'.to_date
-            @time_end = @time_start + 2.hours - 1.second
-            @another_time = '2016-01-31'.to_date
-          end
-
-          it 'should be available in bookable times' do
-            expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-          end
-
-          it 'should not be available in not bookable times' do
-            @time_start -= 1.second
-            @time_end += 1.second
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
-
-          it 'should not be available when end time is outside availability' do
-            @time_end += 1.second
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
-
-          it 'should not be available when start time is outside availability' do
-            @time_start -= 1.second
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_falsy
-            expect{ @bookable.check_availability!({time_start: @time_start, time_end: @time_end}) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!({time_start: @time_start, time_end: @time_end})
-            rescue ActsAsBookable::AvailabilityError => e
-              expect(e.message).to include "the Bookable is not available from #{@time_start.to_time} to #{@time_end.to_time}"
-            end
-          end
-
-          it 'should be bookable within a bookable time' do
-            @time_start += 1.second
-            @time_end -= 1.second
-            expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-          end
-
-          it 'should be available when time_start is available, time_end is available but the availability is splitted in between' do
-            @time_end = @another_time
-            expect(@bookable.check_availability({time_start: @time_start, time_end: @time_end})).to be_truthy
-            expect(@bookable.check_availability!({time_start: @time_start, time_end: @time_end})).to be_truthy
-          end
+      it 'should not be available in not bookable times' do
+        time = '2016-01-02'.to_date
+        endtime = '2016-01-04'.to_date
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_falsy
+        expect{ @bookable.check_availability!({time_start: time, time_end: endtime}) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!({time_start: time, time_end: endtime})
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include "the Bookable is not available from #{time.to_time} to #{endtime.to_time}"
         end
       end
 
-      describe 'with time_type: :fixed' do
-        before(:each) do
-          Bookable.booking_opts = {
-            time_type: :fixed,
-            capacity_type: :none
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date))
-          ## bookable the first and third day of the month, at 9AM
-          @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3]).hour_of_day(9)
-          @bookable.save!
-        end
+      it 'should be bookable within a bookable time' do
+        time = '2016-01-01'.to_date + 1.minute
+        endtime = '2016-01-02'.to_date - 1.minute
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+      end
 
-        it 'should be available in available times' do
-          time = '2016-01-01'.to_date + 9.hours
-          expect(@bookable.check_availability(time: time)).to be_truthy
-          expect(@bookable.check_availability!(time: time)).to be_truthy
-          time = '2016-01-03'.to_date + 9.hours
-          expect(@bookable.check_availability(time: time)).to be_truthy
-          expect(@bookable.check_availability!(time: time)).to be_truthy
-        end
+      it 'should be bookable within a bookable time' do
+        time = '2016-01-01'.to_date + 1.minute
+        endtime = '2016-01-02'.to_date - 1.minute
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+      end
 
-        it 'should not be available in not bookable day' do
-          time = '2016-01-02'.to_date
-          expect(@bookable.check_availability(time: time)).to be_falsy
-          expect{ @bookable.check_availability!(time: time) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!(time: time)
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available at #{time}"
-          end
-        end
+      it 'should be available when time_start is available, time_end is available and the availability is splitted in between' do
+        time = '2016-01-01'.to_date + 1.minute
+        endtime = '2016-01-03'.to_date + 1.minute
+        expect(@bookable.check_availability({time_start: time, time_end: endtime})).to be_truthy
+        expect(@bookable.check_availability!({time_start: time, time_end: endtime})).to be_truthy
+      end
+    end
 
+    describe 'with time_type: :fixed' do
+      before(:each) do
+        Bookable.booking_opts = {
+          time_type: :fixed,
+          capacity_type: :none
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', schedule: IceCube::Schedule.new('2016-01-01'.to_date))
+        ## bookable the first and third day of the month, at 9AM
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.monthly.day_of_month([1,3]).hour_of_day(9)
+        @bookable.save!
+      end
 
-        it 'should not be available in bookable day but not bookable time' do
-          time = '2016-01-02'.to_date + 10.hours
-          expect(@bookable.check_availability(time: time)).to be_falsy
-          expect{ @bookable.check_availability!(time: time) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!(time: time)
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available at #{time}"
-          end
-        end
+      it 'should be available in available times' do
+        time = '2016-01-01'.to_date + 9.hours
+        expect(@bookable.check_availability(time: time)).to be_truthy
+        expect(@bookable.check_availability!(time: time)).to be_truthy
+        time = '2016-01-03'.to_date + 9.hours
+        expect(@bookable.check_availability(time: time)).to be_truthy
+        expect(@bookable.check_availability!(time: time)).to be_truthy
+      end
 
-        it 'should not be available very close to a bookable time but not the exact second' do
-          time = '2016-01-02'.to_date + 9.hours + 1.second
-          expect(@bookable.check_availability(time: time)).to be_falsy
-          expect{ @bookable.check_availability!(time: time) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!(time: time)
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include "the Bookable is not available at #{time}"
-          end
+      it 'should not be available in not bookable day' do
+        time = '2016-01-02'.to_date
+        expect(@bookable.check_availability(time: time)).to be_falsy
+        expect{ @bookable.check_availability!(time: time) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(time: time)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include "the Bookable is not available at #{time}"
         end
       end
 
-      describe 'with capacity_type: :open' do
-        before(:each) do
-          Bookable.booking_opts = {
-            time_type: :none,
-            capacity_type: :open
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', capacity: 4)
-        end
 
-        it 'should be available if amount <= capacity' do
-          (1..@bookable.capacity).each do |amount|
-            expect(@bookable.check_availability(amount: amount)).to be_truthy
-            expect(@bookable.check_availability!(amount: amount)).to be_truthy
-          end
+      it 'should not be available in bookable day but not bookable time' do
+        time = '2016-01-02'.to_date + 10.hours
+        expect(@bookable.check_availability(time: time)).to be_falsy
+        expect{ @bookable.check_availability!(time: time) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(time: time)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include "the Bookable is not available at #{time}"
         end
+      end
 
-        it 'should not be available if amount > capacity' do
-          expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
-          expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!(amount: @bookable.capacity + 1)
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include 'cannot be greater'
-          end
+      it 'should not be available very close to a bookable time but not the exact second' do
+        time = '2016-01-02'.to_date + 9.hours + 1.second
+        expect(@bookable.check_availability(time: time)).to be_falsy
+        expect{ @bookable.check_availability!(time: time) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(time: time)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include "the Bookable is not available at #{time}"
         end
+      end
+    end
 
-        it 'should be available if already booked but amount <= conditional capacity' do
-          booker = create(:booker)
-          @bookable.be_booked!(booker, amount: 2)
-          (1..(@bookable.capacity - 2)).each do |amount|
-            expect(@bookable.check_availability(amount: amount)).to be_truthy
-            expect(@bookable.check_availability!(amount: amount)).to be_truthy
-          end
+    describe 'with capacity_type: :open' do
+      before(:each) do
+        Bookable.booking_opts = {
+          time_type: :none,
+          capacity_type: :open
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4)
+      end
+
+      it 'should be available if amount <= capacity' do
+        (1..@bookable.capacity).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_truthy
+          expect(@bookable.check_availability!(amount: amount)).to be_truthy
         end
+      end
 
-        it 'should not be available if amount <= capacity but already booked and amount > conditional capacity' do
-          booker = create(:booker)
-          @bookable.be_booked!(booker, amount: 2)
-          amount = @bookable.capacity - 2 + 1
+      it 'should not be available if amount > capacity' do
+        expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
+        expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(amount: @bookable.capacity + 1)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include 'cannot be greater'
+        end
+      end
+
+      it 'should be available if already booked but amount <= conditional capacity' do
+        booker = create(:booker)
+        @bookable.be_booked!(booker, amount: 2)
+        (1..(@bookable.capacity - 2)).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_truthy
+          expect(@bookable.check_availability!(amount: amount)).to be_truthy
+        end
+      end
+
+      it 'should not be available if amount <= capacity but already booked and amount > conditional capacity' do
+        booker = create(:booker)
+        @bookable.be_booked!(booker, amount: 2)
+        amount = @bookable.capacity - 2 + 1
+        expect(@bookable.check_availability(amount: amount)).to be_falsy
+        expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(amount: amount)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include 'is fully booked'
+        end
+      end
+
+      it 'should be available if amount <= capacity and already booked and amount > conditional capacity but overlappings are separated in time and space' do
+        Bookable.booking_opts = {
+          time_type: :range,
+          capacity_type: :open,
+          bookable_across_occurrences: true
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4, schedule: IceCube::Schedule.new(Date.today, duration: 1.day))
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
+        @bookable.save!
+        booker = create(:booker)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)
+        amount = 1
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
+      end
+
+      it 'should not be available if amount <= capacity and already booked and amount > conditional capacity' do
+        Bookable.booking_opts = {
+          time_type: :range,
+          capacity_type: :open,
+          bookable_across_occurrences: true
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4, schedule: IceCube::Schedule.new(Date.today, duration: 1.day))
+        @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
+        @bookable.save!
+        booker = create(:booker)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
+        @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
+        @bookable.be_booked!(booker, amount: 1, time_start: Date.today + 8.hours, time_end: Date.today + 24.hours)
+        amount = 2
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)).to be_truthy
+        expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
+      end
+    end
+
+    describe 'with capacity_type: :closed' do
+      before(:each) do
+        Bookable.booking_opts = {
+          time_type: :none,
+          capacity_type: :closed
+        }
+        Bookable.initialize_acts_as_bookable_core
+        @bookable = Bookable.create!(name: 'bookable', capacity: 4)
+      end
+
+      it 'should be available if amount <= capacity' do
+        (1..@bookable.capacity).each do |amount|
+          expect(@bookable.check_availability(amount: amount)).to be_truthy
+          expect(@bookable.check_availability!(amount: amount)).to be_truthy
+        end
+      end
+
+      it 'should not be available if amount > capacity' do
+        expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
+        expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
+        begin
+          @bookable.check_availability!(amount: @bookable.capacity + 1)
+        rescue ActsAsBookable::AvailabilityError => e
+          expect(e.message).to include 'cannot be greater'
+        end
+      end
+
+      it 'should not be available if already booked (even though amount < capacity - overlapped amounts)' do
+        booker = create(:booker)
+        @bookable.be_booked!(booker, amount: 1)
+        (1..(@bookable.capacity + 1)).each do |amount|
           expect(@bookable.check_availability(amount: amount)).to be_falsy
           expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
           begin
             @bookable.check_availability!(amount: amount)
           rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include 'is fully booked'
-          end
-        end
-
-        it 'should be available if amount <= capacity and already booked and amount > conditional capacity but overlappings are separated in time and space' do
-          Bookable.booking_opts = {
-            time_type: :range,
-            capacity_type: :open,
-            bookable_across_occurrences: true
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', capacity: 4, schedule: IceCube::Schedule.new(Date.today, duration: 1.day))
-          @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
-          @bookable.save!
-          booker = create(:booker)
-          @bookable.be_booked!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
-          @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
-          @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)
-          amount = 1
-          expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
-        end
-
-        it 'should not be available if amount <= capacity and already booked and amount > conditional capacity' do
-          Bookable.booking_opts = {
-            time_type: :range,
-            capacity_type: :open,
-            bookable_across_occurrences: true
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', capacity: 4, schedule: IceCube::Schedule.new(Date.today, duration: 1.day))
-          @bookable.schedule.add_recurrence_rule IceCube::Rule.daily
-          @bookable.save!
-          booker = create(:booker)
-          @bookable.be_booked!(booker, amount: 3, time_start: Date.today, time_end: Date.today + 8.hours)
-          @bookable.be_booked!(booker, amount: 3, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)
-          @bookable.be_booked!(booker, amount: 1, time_start: Date.today + 8.hours, time_end: Date.today + 24.hours)
-          amount = 2
-          expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 8.hours)).to be_truthy
-          expect(@bookable.check_availability(amount: amount, time_start: Date.today + 8.hours, time_end: Date.today + 16.hours)).to be_truthy
-          expect(@bookable.check_availability(amount: amount, time_start: Date.today + 16.hours, time_end: Date.today + 24.hours)).to be_truthy
-          expect(@bookable.check_availability(amount: amount, time_start: Date.today, time_end: Date.today + 24.hours)).to be_truthy
-        end
-      end
-
-      describe 'with capacity_type: :closed' do
-        before(:each) do
-          Bookable.booking_opts = {
-            time_type: :none,
-            capacity_type: :closed
-          }
-          Bookable.initialize_acts_as_bookable_core
-          @bookable = Bookable.create!(name: 'bookable', capacity: 4)
-        end
-
-        it 'should be available if amount <= capacity' do
-          (1..@bookable.capacity).each do |amount|
-            expect(@bookable.check_availability(amount: amount)).to be_truthy
-            expect(@bookable.check_availability!(amount: amount)).to be_truthy
-          end
-        end
-
-        it 'should not be available if amount > capacity' do
-          expect(@bookable.check_availability(amount: @bookable.capacity + 1)).to be_falsy
-          expect { @bookable.check_availability!(amount: @bookable.capacity + 1) }.to raise_error ActsAsBookable::AvailabilityError
-          begin
-            @bookable.check_availability!(amount: @bookable.capacity + 1)
-          rescue ActsAsBookable::AvailabilityError => e
-            expect(e.message).to include 'cannot be greater'
-          end
-        end
-
-        it 'should not be available if already booked (even though amount < capacity - overlapped amounts)' do
-          booker = create(:booker)
-          @bookable.be_booked!(booker, amount: 1)
-          (1..(@bookable.capacity + 1)).each do |amount|
-            expect(@bookable.check_availability(amount: amount)).to be_falsy
-            expect { @bookable.check_availability!(amount: amount) }.to raise_error ActsAsBookable::AvailabilityError
-            begin
-              @bookable.check_availability!(amount: amount)
-            rescue ActsAsBookable::AvailabilityError => e
-              if(amount <= @bookable.capacity)
-                expect(e.message).to include('is fully booked')
-              else
-                expect(e.message).to include('cannot be greater')
-              end
+            if(amount <= @bookable.capacity)
+              expect(e.message).to include('is fully booked')
+            else
+              expect(e.message).to include('cannot be greater')
             end
           end
         end
@@ -631,14 +472,14 @@ describe 'Bookable model' do
           end
 
           it 'requires time_start as Time' do
-            @opts.delete :time_start
+            @opts[:time_start] = nil
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
             @opts[:time_start] = 'String'
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           end
 
           it 'requires time_end as Time' do
-            @opts.delete :time_end
+            @opts[:time_end] = nil
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
             @opts[:time_end] = 'String'
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
@@ -662,7 +503,7 @@ describe 'Bookable model' do
           end
 
           it 'requires date as Time' do
-            @opts.delete :time
+            @opts[:time] = nil
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
             @opts[:time] = 'String'
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
@@ -714,7 +555,7 @@ describe 'Bookable model' do
           end
 
           it 'requires :amount as integer' do
-            @opts.delete :amount
+            @opts[:amount] = nil
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           end
         end
@@ -731,7 +572,7 @@ describe 'Bookable model' do
           end
 
           it 'requires :amount as integer' do
-            @opts.delete :amount
+            @opts[:amount] = nil
             expect{ Bookable.validate_booking_options!(@opts) }.to raise_error ActsAsBookable::OptionsInvalid
           end
         end

@@ -30,6 +30,8 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'activerecord', ['>= 3.2', '< 6']
   gem.add_runtime_dependency 'activesupport', ['>= 3.2', '< 6']
 
+  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'rails'
   gem.add_development_dependency 'sqlite3', '~> 1.3'
   gem.add_development_dependency 'mysql2', '~> 0.5.2'
   gem.add_development_dependency 'pg', '~> 0.18'

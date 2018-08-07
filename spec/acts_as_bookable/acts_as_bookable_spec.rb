@@ -14,14 +14,6 @@ describe 'acts_as_bookable' do
     it "should respond 'true' to bookable?" do
       expect(@bookable.class).to be_bookable
     end
-
-    it "should use last options inserted if acts_as_bookable is invoked more than once" do
-      expect(Unbookable.booking_opts[:capacity_type]).not_to be :open
-      Unbookable.acts_as_bookable capacity_type: :open
-      expect(Unbookable.booking_opts[:capacity_type]).to be :open
-      Unbookable.acts_as_bookable
-      expect(Unbookable.booking_opts[:capacity_type]).not_to be :open
-    end
   end
 
   describe 'class configured as Bookable' do

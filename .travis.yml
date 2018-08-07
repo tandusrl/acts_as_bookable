@@ -32,6 +32,8 @@ matrix:
       - gemfile: gemfiles/activerecord_edge.gemfile
       - rvm: rbx-2
   exclude:
+      - rvm: 2.0.0
+        gemfile: gemfiles/activerecord_4.2.gemfile
       - rvm: 2.2.2
         gemfile: gemfiles/activerecord_3.2.gemfile
       - rvm: rbx-2
