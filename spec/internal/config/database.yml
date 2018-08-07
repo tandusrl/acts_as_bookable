@@ -1,0 +1,18 @@
+sqlite3:
+  adapter: sqlite3
+  database: ':memory:'
+
+mysql:
+  adapter: mysql2
+  host: localhost
+  username: root
+  database: acts_as_bookable
+  charset: utf8
+
+postgresql:
+  adapter: postgresql
+  encoding: unicode
+  database: acts_as_bookable_development
+  pool: 5
+  username:
+  password:
