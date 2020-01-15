@@ -27,8 +27,8 @@ Gem::Specification.new do |gem|
   end
 
   gem.add_dependency 'ice_cube_chosko', '~> 0.1.0'
-  gem.add_runtime_dependency 'activerecord', ['>= 3.2', '< 5.1']
-  
+  gem.add_runtime_dependency 'activerecord', ['>= 3.2', '<= 5.2.4.1']
+
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rails'
   gem.add_development_dependency 'sqlite3', '~> 1.3'
