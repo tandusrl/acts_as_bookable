@@ -13,7 +13,7 @@ module ActsAsBookable
       # @param interval_end The ending time of the interval to match against
       #
       def time_in_interval? (time, interval_start, interval_end)
-        time >= interval_start && time < interval_end
+        time > interval_start && time < interval_end
       end
 
       ##
